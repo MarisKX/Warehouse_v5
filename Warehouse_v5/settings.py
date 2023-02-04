@@ -78,6 +78,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Neccessary for media folder to be found
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -173,3 +175,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 FIRST_DAY_OF_WEEK = '1'
+
+# Custom settings
+
+CURRENT_YEAR = 1900
