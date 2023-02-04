@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}Dashboard{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="main-content">
+    <h4 class="my-5 mx-5">Home - Dashboard</h4>  
+</div>
+
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}
+    <!-- Custom Scripts -->
+
+
+{% endblock %}
