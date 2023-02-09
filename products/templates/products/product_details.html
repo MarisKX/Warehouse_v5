@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}{{ product.code }}{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h4 class="my-5 mx-5">{{ product.code }} - {{ product.display_name }} - Details</h4>  
+    </div>
+    <div class="row">
+        <div class="col-8 offset-2">
+            <form method="GET" action="">
+
+            </form>
+        </div>
+    </div>
+    <div class="col-md-6 offset-md-3 pb-5 pt-5">
+    </div>
+
+{% endblock %}

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
 
     # Custom Apps
     'home',
+    'products',
 ]
 
 MIDDLEWARE = [
@@ -178,4 +179,4 @@ FIRST_DAY_OF_WEEK = '1'
 
 # Custom settings
 
-CURRENT_YEAR = 1900
+CURRENT_YEAR = 1800

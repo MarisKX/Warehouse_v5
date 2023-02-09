@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}Settings{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h4 class="my-5 mx-5">Settings</h4>
+    </div>
+    <div class="row">
+        <div class="col-8 offset-2">
+            <form method="GET" action="">
+
+            </form>
+        </div>
+    </div>
+    <div class="col-md-6 offset-md-3 pb-5 pt-5">
+        <table class="table table-striped caption-top my-5">
+            <caption>
+                <h4>Active Settings</h4>
+            </caption>
+            <thead>
+                <tr>
+                    <th scope="col">Nr</th>
+                    <th scope="col">Valid from</th>
+                    <th scope="col">Valid till</th>
+                    <th scope="col">Actions p/d</th>
+                    <th scope="col">Level of no IIN</th>
+                    <th scope="col">Enviroment Tax Base</th>
+                    <th scope="col">Valid</th>
+                </tr>
+              </thead>
+              <tbody>   
+                <tr>
+                    <td>{{ current_settings.settings_number }}</td>
+                    <td>{{ current_settings.valid_from }}</td>
+                    <td>{{ current_settings.valid_till }}</td>
+                    <td>{{ current_settings.acions_per_day }}</td>
+                    <td>{{ current_settings.no_iin_level }}</td>
+                    <td>{{ current_settings.enviroment_tax_base }}</td>
+                    <td><i class="fa-duotone fa-check text-green fs-4"></i></td>
+                </tr>
+              </tbody>
+        </table>
+        <table class="table table-striped caption-top my-5">
+            <caption>
+                <h4>Historic Settings</h4>
+            </caption>
+            <thead>
+                <tr>
+                    <th scope="col">Nr</th>
+                    <th scope="col">Valid from</th>
+                    <th scope="col">Valid till</th>
+                    <th scope="col">Actions p/d</th>
+                    <th scope="col">Level of no IIN</th>
+                    <th scope="col">Enviroment Tax Base</th>
+                    <th scope="col">Valid</th>
+                </tr>
+              </thead>
+              <tbody> 
+                {% for sh in settings_history %}
+                    <tr>
+                        <td>{{ settings_history.settings_number }}</td>
+                        <td>{{ settings_history.valid_from }}</td>
+                        <td>{{ settings_history.valid_till }}</td>
+                        <td>{{ settings_history.acions_per_day }}</td>
+                        <td>{{ settings_history.no_iin_level }}</td>
+                        <td>{{ settings_history.enviroment_tax_base }}</td>
+                        <td><i class="fa-solid fa-ban text-red fs-4"></i></td>
+                    </tr>
+                {% endfor %}
+              </tbody>
+        </table>
+    </div>
+    
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}
+    <!-- Custom Scripts -->
+
+
+{% endblock %}

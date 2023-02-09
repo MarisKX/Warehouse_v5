@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}All Products{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h4 class="my-5 mx-5">All Products</h4>  
+    </div>
+    <div class="row">
+        <div class="col-8 offset-2">
+            <form method="GET" action="">
+
+            </form>
+        </div>
+    </div>
+    <div class="col-md-6 offset-md-3 pb-5 pt-5">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Image</th>
+                    <th scope="col">Code</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Subkategory</th>
+                    <th scope="col">Enviroment Tax</th>
+                    <th scope="col">Expiry</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for product in products %}
+                    <tr>
+                        {% if product.image %}
+                            <th scope="row" onclick="window.location='{% url 'product_details' product.code %}';">
+                                <img class="table-image pointer" src="{{ product.image.url }}" alt="{{ product.name }}">
+                            </th>
+                        {% else %}
+                            <th scope="row" onclick="window.location='{% url 'view_product' product.code %}';">
+                                <img class="table-image pointer" src="{{ MEDIA_URL }}No-image.png" alt="No Image Available">
+                            </th>
+                        {% endif %}
+                        <td>{{ product.code }}</td>
+                        <td>{{ product.display_name }}</td>
+                        <td>{{ product.category.display_name }}</td>
+                        <td>{{ product.subcategory.display_name }}</td>
+                        {% if product.enviroment_tax_amount > 0 %}
+                            <td>{{ product.enviroment_tax_amount }}</td>
+                        {% else %}
+                            <td><i class="fa-solid fa-minus"></i></td>
+                        {% endif %}
+                        {% if product.expiry_end_date_terms > 0 %}
+                            <td>{{ product.expiry_end_date_terms }} {{ product.enviroment_tax_class }}</td>
+                        {% else %}
+                            <td><i class="fa-solid fa-minus"></i></td>
+                        {% endif %}
+                        <td><i class="fa-sharp fa-solid fa-pen-to-square"></i></td>
+                        <td class="pointer" onclick="window.open('{% url 'product_details_in_pdf' product.code %}', '_blank');"><i class="fa-light fa-file-pdf"></i></td>
+                    </tr>
+                {% endfor %}
+              </tbody>
+        </table>
+    </div>
+    
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}
+    <!-- Custom Scripts -->
+
+
+{% endblock %}

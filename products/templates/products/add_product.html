@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}Add Product{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h4 class="my-5 mx-5">Add New Product/Category</h4>  
+    </div>
+    <div class="row">
+        <div class="col-8 offset-2 p-3 d-flex justify-content-center pb-4 mt-5">
+            <h4 class="m-1" id="toggle_add_category_h">Add New Category</h4>
+            <button type="button" class="btn bg-brown btn-floating" id="toggle_add_category_btn"><i class="fa-solid fa-plus"></i></button>
+            <!-- Category Form -->
+            <form method="POST" action="." class="general-form" id="category-form" hidden>
+                {% csrf_token %}
+                <legend>Add New Category</legend>
+                <!-- Name input -->
+                <div class="form-outline mb-4 row category-input-wrap">
+                    {{ add_category }}
+                </div>
+                <!-- Submit button -->
+                <div class="form-outline mb-4 p-1 row">
+                    <button type="submit" class="col-7 offset-2 btn bg-green" name="add-category-btn">Create New Category</button>
+                    <button id="close-category-form" type="submit" class="col-1 offset-1 btn bg-brown"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </form>
+        </div>
+        <div class="col-8 offset-2 p-4 d-flex justify-content-center pb-4">
+            <h4 class="m-1" id="toggle_add_subcategory_h">Add New SubCategory</h4>
+            <button type="button" class="btn bg-brown btn-floating" id="toggle_add_subcategory_btn"><i class="fa-solid fa-plus"></i></button>
+            <!-- Subcategory Form -->
+            <form method="POST" action="." class="general-form" id="subcategory-form" hidden>
+                {% csrf_token %}
+                <legend>Add New SubCategory</legend>
+                <!-- Name input -->
+                <div class="form-outline mb-4 row category-input-wrap">
+                    {{ add_subcategory }}
+                </div>
+                <!-- Submit button -->
+                <div class="form-outline mb-4 p-1 row">
+                    <button type="submit" class="col-7 offset-2 btn bg-green" name="add-subcategory-btn">Create New Subcategory</button>
+                    <button id="close-subcategory-form" type="submit" class="col-1 offset-1 btn bg-brown"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </form>
+        </div>
+        <div class="col-8 offset-2 p-4 d-flex justify-content-center pb-4">
+                <form method="POST" action="." class="general-form" id="product-form" accept-charset="utf-8" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <legend>Add New Product</legend>
+                    <!-- Name input -->
+                    <div class="form-outline mb-4 row category-input-wrap">
+                        {{ add_product }}
+                    </div>
+
+                    <!-- Submit button -->
+                    <div class="form-outline mb-4 row">
+                        <button type="submit" class="col-8 offset-2 btn bg-green" name="add-product-btn">Create New Product</button>
+                    </div>
+                </form>
+        </div>
+    </div>
+    <div class="col-md-6 offset-md-3 pb-5 pt-5">
+    </div>
+
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}
+    <!-- Custom Scripts -->
+    <script src="{% static 'js/newProductFormsHandler.js' %}"></script>
+
+{% endblock %}
