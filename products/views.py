@@ -2,6 +2,7 @@
 from django.shortcuts import render, get_object_or_404, reverse
 from django.http import JsonResponse, HttpResponseRedirect
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 # PDF imports
 from django.http import FileResponse
 import io
@@ -20,6 +21,7 @@ from .forms import ProductForm, CategoryForm, SubCategoryForm
 
 
 # All Products view
+@login_required
 def all_products(request):
     """ A view to show all products, including sorting and search queries """
 
@@ -69,6 +71,7 @@ def all_products(request):
 
 
 # Product Details View
+@login_required
 def product_details(request, code):
     """ A view to return the product detail page """
 
@@ -82,6 +85,7 @@ def product_details(request, code):
 
 
 # Product Details View in PDF
+@login_required
 def product_details_in_pdf(request, code):
     """ A view to return the product detail page """
 
@@ -183,6 +187,7 @@ def product_details_in_pdf(request, code):
 
 
 # Add New Product view
+@login_required
 def add_product(request):
     """ A view to return the product detail page """
 

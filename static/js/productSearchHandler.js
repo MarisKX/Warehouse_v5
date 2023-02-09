@@ -7,7 +7,6 @@ $(document).ready(function(){
     };
     $(document.body).on('change',".category-search-list",function(){
         let value = $(this).val()
-        console.log(value)
         let list = $(".subcategory-search-list")
         if (list[0].hasChildNodes()) {
             list.empty()
@@ -21,7 +20,6 @@ $(document).ready(function(){
                 category: value
             },
             success: function(response){
-                console.log(response)
                 let subcategories = response.subcategories_to_return
                 let subcategories_id = response.subcategories_id_to_return
                 $.each(subcategories,function(key, value){

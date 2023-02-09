@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 # from companies.models import Company
 from .models import AppSettings
 
+
 # Index (home) view
 @login_required
 def index(request):
