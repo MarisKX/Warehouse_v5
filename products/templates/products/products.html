@@ -14,11 +14,30 @@
         <h4 class="my-5 mx-5">All Products</h4>  
     </div>
     <div class="row">
-        <div class="col-8 offset-2">
-            <form method="GET" action="">
-
-            </form>
-        </div>
+        <form method="GET" action="{% url 'products' %}">
+            <div class="row">
+                <div class="col-2 offset-3">
+                    <h6 class="mt-4 ms-3">Category:</h6>
+                    <select class="select category-search-list" name="category">
+                        <option value="">Select All</option>
+                        {% for category in all_categories %}
+                            <option value="{{ category.id }}">{{ category.display_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-2">
+                    <h6 class="mt-4 ms-3">Subcategory:</h6>
+                    <select class="select subcategory-search-list" data-mdb-visible-options="6" name="subcategory">
+                        <option value="">Select All</option>
+                    </select>
+                </div>
+                <div class="col-2 pt-5">
+                    <button type="submit" class="btn btn-secondary bg-green">
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
     <div class="col-md-6 offset-md-3 pb-5 pt-5">
         <table class="table table-striped">
@@ -74,6 +93,7 @@
 {% block postloadjs %}
     {{ block.super }}
     <!-- Custom Scripts -->
+    <script src="{% static 'js/productSearchHandler.js' %}"></script>
 
 
 {% endblock %}
