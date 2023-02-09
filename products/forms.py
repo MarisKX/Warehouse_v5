@@ -59,6 +59,9 @@ class ProductForm(forms.ModelForm):
             'enviroment_tax_class',
             'expiry_end_date_terms',
             'expiry_end_date_cat',
+            'units_per_package',
+            'packages_per_lay',
+            'lay_per_palet',
             'image',
         ]
 

@@ -81,6 +81,15 @@ class Product(models.Model):
     ]
     expiry_end_date_cat = models.CharField(
         max_length=7, choices=expiry_end_date_choices_cat, default='0')
+    units_per_package = models.IntegerField(null=False, blank=False, default=64, validators=[MinValueValidator(1), MaxValueValidator(64)])
+    packages_per_lay = models.IntegerField(null=False, blank=False, default=9, validators=[MinValueValidator(9), MaxValueValidator(9)])
+    lay_per_palet = models.IntegerField(null=False, blank=False, default=6, validators=[MinValueValidator(3), MaxValueValidator(6)])
+
+    units_per_lay = models.IntegerField(null=False, blank=False)
+    units_per_palet = models.IntegerField(null=False, blank=False)
+
+    packages_per_palet = models.IntegerField(null=False, blank=False)
+
     image_url = models.URLField(max_length=1024, null=True, blank=True)
     image = models.ImageField(null=True, blank=True)
 
@@ -102,8 +111,10 @@ class Product(models.Model):
                 self.subcategory.name[1].upper() +
                 str(same_cat_products_count + 1).zfill(3)
                 )
+        self.units_per_lay = self.units_per_package * self.packages_per_lay
+        self.units_per_palet = self.units_per_lay * self.lay_per_palet
+        self.packages_per_palet = self.packages_per_lay * self.lay_per_palet
         current_settings = get_object_or_404(AppSettings, valid=True)
         enviroment_tax_base = current_settings.enviroment_tax_base
-        print(self.enviroment_tax_class)
         self.enviroment_tax_amount = int(self.enviroment_tax_class) * enviroment_tax_base
         super().save(*args, **kwargs)

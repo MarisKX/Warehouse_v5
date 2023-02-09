@@ -27,7 +27,13 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    readonly_fields = ('code', 'name', )
+    readonly_fields = (
+        'code',
+        'name',
+        'units_per_lay',
+        'units_per_palet',
+        'packages_per_palet',
+        )
     list_display = (
         'display_name',
         'name',
@@ -38,6 +44,9 @@ class ProductAdmin(admin.ModelAdmin):
         'enviroment_tax_amount',
         'expiry_end_date_terms',
         'expiry_end_date_cat',
+        'units_per_package',
+        'packages_per_lay',
+        'lay_per_palet',
     )
 
     ordering = ('display_name',)

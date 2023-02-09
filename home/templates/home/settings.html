@@ -31,8 +31,12 @@
                     <th scope="col">Valid from</th>
                     <th scope="col">Valid till</th>
                     <th scope="col">Actions p/d</th>
-                    <th scope="col">Level of no IIN</th>
-                    <th scope="col">Enviroment Tax Base</th>
+                    <th scope="col">VSAOI DN(%)</th>
+                    <th scope="col">IIN Rate(%)</th>
+                    <th scope="col">Level of no IIN(Eur)</th>
+                    <th scope="col">UIN Rate(%)</th>
+                    <th scope="col">Enviroment Tax Base(Eur p/u)</th>
+                    <th scope="col">VSAOI DD(%)</th>
                     <th scope="col">Valid</th>
                 </tr>
               </thead>
@@ -42,8 +46,12 @@
                     <td>{{ current_settings.valid_from }}</td>
                     <td>{{ current_settings.valid_till }}</td>
                     <td>{{ current_settings.acions_per_day }}</td>
+                    <td>{{ current_settings.vsaoi_dn }} %</td>
+                    <td>{{ current_settings.iin_rate }} %</td>
                     <td>{{ current_settings.no_iin_level }}</td>
+                    <td>{{ current_settings.uin_rate }} %</td>
                     <td>{{ current_settings.enviroment_tax_base }}</td>
+                    <td>{{ current_settings.vsaoi_dd }} %</td>
                     <td><i class="fa-duotone fa-check text-green fs-4"></i></td>
                 </tr>
               </tbody>

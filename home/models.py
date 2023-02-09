@@ -14,10 +14,18 @@ class AppSettings(models.Model):
     valid_from = models.DateField(auto_now_add=False)
     valid_till = models.DateField(auto_now_add=False)
     acions_per_day = models.PositiveIntegerField(default=1)
+    vsaoi_dn = models.DecimalField(
+        max_digits=4, decimal_places=2, blank=False, null=False)
+    iin_rate = models.DecimalField(
+        max_digits=4, decimal_places=2, blank=False, null=False)
     no_iin_level = models.DecimalField(
         max_digits=8, decimal_places=2, blank=False, null=False)
+    uin_rate = models.DecimalField(
+        max_digits=4, decimal_places=2, blank=False, null=False)
     enviroment_tax_base = models.DecimalField(
         max_digits=8, decimal_places=2, blank=False, null=False)
+    vsaoi_dd = models.DecimalField(
+        max_digits=4, decimal_places=2, blank=False, null=False)
     valid = models.BooleanField()
 
     def save(self, *args, **kwargs):

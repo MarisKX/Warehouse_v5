@@ -1,0 +1,23 @@
+<div class="row fs-6">
+    <div class="col-3 my-2 fs-4">
+        <p>Today: {{ today }}</p>
+    </div>
+    <div class="col-2 my-2">
+        <p>{{ valid_settings.valid_from }} - {{ valid_settings.valid_till }}</p>
+    </div>
+    <div class="col-2 my-2">
+        <p>Allowed Transactions per day: {{ valid_settings.acions_per_day }}</p>
+    </div>
+    <div class="col-2 my-2">
+        <p>Last Action: {{ last_action_date }}</p>
+    </div>
+    {% if actions_left < 1 %}
+    <div class="col-3 my-2">
+        <p>Actions left: <span class="text-red">{{ actions_left }}</span></p>
+    </div>
+    {% else %}
+    <div class="col-3 my-2">
+        <p>Actions left: {{ actions_left }}</p>
+    </div>
+    {% endif %}
+</div>
