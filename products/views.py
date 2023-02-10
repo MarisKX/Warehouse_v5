@@ -126,10 +126,12 @@ def product_details_in_pdf(request, code):
         " ",
         "Enviroment Tax Class:",
         product.get_enviroment_tax_class_display(),
-        " ",
-        "Enviroment Tax:",
-        env_tax_amount + " Eur",
     ]
+
+    if product.enviroment_tax_class != "0":
+        reg_lines.append(" ")
+        reg_lines.append("Enviroment Tax:")
+        reg_lines.append(env_tax_amount + " Eur")
 
     lg_lines = [
         " ",
