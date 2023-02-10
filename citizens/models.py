@@ -9,9 +9,9 @@ class Citizen(models.Model):
         verbose_name_plural = 'Citizens'
 
     first_name = models.CharField(max_length=254)
-    first_name_display = models.CharField(max_length=254, blank=False, null=False)
+    first_name_display = models.CharField(max_length=254, blank=True, null=True)
     last_name = models.CharField(max_length=254)
-    last_name_display = models.CharField(max_length=254, blank=False, null=False)
+    last_name_display = models.CharField(max_length=254, blank=True, null=True)
     bsn_number = models.PositiveIntegerField(
         blank=True, primary_key=True, default=1)
     street_adress_1 = models.IntegerField(default=0, blank=True)

@@ -3,7 +3,7 @@ from .models import Citizen
 
 
 class CitizenAdmin(admin.ModelAdmin):
-    readonly_fields = ('first_name', 'last_name', 'bsn_number',)
+    readonly_fields = ('first_name', 'last_name', 'bsn_number', )
     list_display = (
         'first_name_display',
         'last_name_display',
