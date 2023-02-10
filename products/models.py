@@ -59,6 +59,7 @@ class Product(models.Model):
     code = models.CharField(max_length=7, unique=True, default='AA001')
     name = models.CharField(max_length=100, default='name')
     display_name = models.CharField(max_length=100)
+    paletizable = models.BooleanField(default=True)
     enviroment_tax_choices = [
         ('0', 'No Tax'),
         ('1', 'Class 1'),
