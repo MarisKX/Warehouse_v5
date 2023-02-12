@@ -105,16 +105,34 @@ def product_details_in_pdf(request, code):
     c.setLineWidth(1)
     c.line(0, 45, 450, 45)
     c.line(0, 130, 450, 130)
+
+    c.setStrokeColor("black")
+    c.setLineWidth(1)
+    c.line(0, 400, 450, 400)
+    c.line(0, 130, 450, 130)
+
     textobj_reg = c.beginText()
     textobj_reg.setTextOrigin(45, 160)
     textobj_reg.setFont("Helvetica", 14)
+
     textobj_xl = c.beginText()
     textobj_xl.setTextOrigin(45, 100)
-    textobj_xl.setFont("Helvetica", 30)
+    textobj_xl.setFont("Helvetica", 35)
+
     textobj_sm = c.beginText()
     textobj_sm.setTextOrigin(310, 120)
     textobj_sm.setFont("Helvetica", 8)
     textobj_sm.setCharSpace(8)
+
+    textobj_calc_names = c.beginText()
+    textobj_calc_names.setTextOrigin(45, 450)
+    textobj_calc_names.setFont("Helvetica", 14)
+    textobj_calc_names.setCharSpace(3)
+
+    textobj_calc_value = c.beginText()
+    textobj_calc_value.setTextOrigin(270, 450)
+    textobj_calc_value.setFont("Helvetica", 16)
+    textobj_calc_value.setCharSpace(3)
 
     reg_lines = [
         " ",
@@ -139,17 +157,41 @@ def product_details_in_pdf(request, code):
         product.display_name,
     ]
 
+    calc_lines_name = [
+        "Units per package:",
+        " ",
+        "Packages per palet:",
+        " ",
+        "Units per palet:",
+    ]
+
+    calc_lines_value = [
+        str(product.units_per_package),
+        " ",
+        str(product.packages_per_palet),
+        " ",
+        str(product.units_per_palet),
+    ]
+
     article = product.code
     barcode = product.code.lower()
     # barcode = "12341570"
 
     for line in lg_lines:
-        textobj_reg.setFont("Helvetica", 18)
+        textobj_reg.setFont("Helvetica", 24)
         textobj_reg.textLine(line)
 
     for line in reg_lines:
         textobj_reg.setFont("Helvetica", 14)
         textobj_reg.textLine(line)
+
+    for line in calc_lines_name:
+        textobj_calc_names.setFont("Helvetica", 16)
+        textobj_calc_names.textLine(line)
+
+    for line in calc_lines_value:
+        textobj_calc_value.setFont("Helvetica", 16)
+        textobj_calc_value.textLine(line)
 
     textobj_xl.textLine(article)
     textobj_sm.textLine(barcode)
@@ -181,6 +223,8 @@ def product_details_in_pdf(request, code):
     c.drawText(textobj_xl)
     c.drawText(textobj_reg)
     c.drawText(textobj_sm)
+    c.drawText(textobj_calc_names)
+    c.drawText(textobj_calc_value)
     c.showPage()
     c.save()
     buf.seek(0)

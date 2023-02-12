@@ -1,7 +1,15 @@
+from datetime import *
+from django.utils import timezone
+from datetime import timedelta, date
+import datetime
+from dateutil.relativedelta import *
+
 from django.db import models
 from django.shortcuts import render, get_object_or_404, reverse
 from django.core.validators import MaxValueValidator, MinValueValidator
 from home.models import AppSettings
+from companies.models import Company
+from warehouses.models import Warehouse
 
 
 class Category(models.Model):
@@ -118,4 +126,41 @@ class Product(models.Model):
         current_settings = get_object_or_404(AppSettings, valid=True)
         enviroment_tax_base = current_settings.enviroment_tax_base
         self.enviroment_tax_amount = int(self.enviroment_tax_class) * enviroment_tax_base
+        super().save(*args, **kwargs)
+
+
+class HandlingUnit(models.Model):
+    manufacturer = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL)
+    location = models.ForeignKey(Warehouse, null=True, blank=True, on_delete=models.SET_NULL, related_name="warehouse")
+    product = models.ForeignKey('Product', null=True, blank=True, on_delete=models.SET_NULL)
+    qty = models.IntegerField(default=1, blank=True)
+    units = [
+        ('0', 'Units'),
+        ('1', 'Packages'),
+    ]
+    qty_units = models.CharField(
+        max_length=7, choices=units, default='0')
+    hu = models.CharField(max_length=20, blank=False, null=False, default="0")
+    batch_nr = models.CharField(max_length=9, blank=True, null=True)
+    release_date = models.DateField(auto_now_add=False)
+    tht = models.DateField(auto_now_add=False, default=timezone.now)
+
+    def save(self, *args, **kwargs):
+        if self.hu == "0":
+            hu_count = HandlingUnit.objects.filter(manufacturer=self.manufacturer, location=self.location).count()
+            hu_pre_code = get_object_or_404(Warehouse, name=self.location).warehouse_code
+            self.hu = f"" + hu_pre_code + str(hu_count + 1).zfill(15)
+        product_tht_int = get_object_or_404(Product, name=self.product).expiry_end_date_terms
+        product_tht_let = get_object_or_404(Product, name=self.product).expiry_end_date_cat
+        if product_tht_let == "1":
+            self.tht = self.release_date + timedelta(days=product_tht_int)
+        elif product_tht_let == "2":
+            self.tht = self.release_date + timedelta(weeks=product_tht_int)
+        elif product_tht_let == "3":
+            self.tht = self.release_date + relativedelta(months=+product_tht_int)
+        elif product_tht_let == "4":
+            self.tht = self.release_date + relativedelta(years=+product_tht_int)
+        elif product_tht_let == "5":
+            self.tht = self.release_date + relativedelta(months=+product_tht_int) + relativedelta(day=31)
+
         super().save(*args, **kwargs)

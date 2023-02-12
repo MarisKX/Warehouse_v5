@@ -3,6 +3,7 @@ from .models import (
     Product,
     Category,
     SubCategory,
+    HandlingUnit,
     )
 
 # Register your models here.
@@ -40,6 +41,7 @@ class ProductAdmin(admin.ModelAdmin):
         'code',
         'category',
         'subcategory',
+        'paletizable',
         'enviroment_tax_class',
         'enviroment_tax_amount',
         'expiry_end_date_terms',
@@ -52,5 +54,24 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ('display_name',)
 
 
+class HandlingUnitAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'hu',
+        )
+    list_display = (
+        'hu',
+        'manufacturer',
+        'product',
+        'qty',
+        'qty_units',
+        'batch_nr',
+        'release_date',
+        'tht',
+    )
+
+    ordering = ('hu',)
+
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Category, CategoryAdmin)
+admin.site.register(HandlingUnit, HandlingUnitAdmin)

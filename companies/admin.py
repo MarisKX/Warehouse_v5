@@ -22,10 +22,22 @@ class EmployeesAdmin(admin.TabularInline):
 
 class CompanyAdmin(admin.ModelAdmin):
     inlines = (EmployeesAdmin, )
-    readonly_fields = ('name', 'total_bruto_salaries', 'total_salary_netto', )
+    readonly_fields = (
+        'registration_number',
+        'manufacturer_code',
+        'name',
+        'employee_count',
+        'total_salaries_cost',
+        'total_bruto_salaries',
+        'total_salary_vsaoi_dd',
+        'total_salary_vsaoi_dn',
+        'total_salary_iin',
+        'total_salary_netto',
+        )
     list_display = (
         'display_name',
         'invoice_prefix',
+        'manufacturer_code',
         'registration_number',
         'warehouse',
         'employee_count',

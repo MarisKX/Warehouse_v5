@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Sum
 from citizens.models import Citizen
 from home.models import AppSettings
+from home.letter_to_number_conv import letter_to_number
 
 
 # Create your models here.
@@ -21,6 +22,7 @@ class Company(models.Model):
         primary_key=True,
         default=1)
     invoice_prefix = models.CharField(max_length=2, blank=False, unique=True)
+    manufacturer_code = models.IntegerField(default=0, blank=True)
     street_adress_1 = models.IntegerField(default=0, blank=True)
     street_adress_2 = models.CharField(max_length=100, blank=True)
     city = models.CharField(max_length=100, blank=True)
@@ -94,6 +96,7 @@ class Company(models.Model):
             company_count = Company.objects.all().count()
             self.registration_number = f"475010" + str(
                 company_count + 1).zfill(4)
+        self.manufacturer_code = letter_to_number(self.display_name)
         self.name = self.display_name.replace(" ", "_").lower()
         self.total_salaries_cost = self.total_bruto_salaries + self.total_salary_vsaoi_dd
         self.employee_count = Employees.objects.filter(company=self.registration_number).count()
