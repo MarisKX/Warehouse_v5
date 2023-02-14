@@ -74,4 +74,3 @@ class ProductForm(forms.ModelForm):
 
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'select col-6 add-product-select-field mb-4'
-

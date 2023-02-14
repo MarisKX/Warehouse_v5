@@ -75,8 +75,10 @@
                         {% else %}
                             <td><i class="fa-solid fa-minus"></i></td>
                         {% endif %}
-                        {% if product.expiry_end_date_terms > 0 %}
-                            <td>{{ product.expiry_end_date_terms }} {{ product.enviroment_tax_class }}</td>
+                        {% if product.expiry_end_date_cat == "5"%}
+                            <td>end of the month + {{ product.expiry_end_date_terms }} months</td>
+                        {% elif product.expiry_end_date_cat != "0" %}
+                            <td>{{ product.expiry_end_date_terms }} {{ product.get_expiry_end_date_cat_display }}</td>
                         {% else %}
                             <td><i class="fa-solid fa-minus"></i></td>
                         {% endif %}

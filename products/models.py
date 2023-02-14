@@ -120,13 +120,23 @@ class Product(models.Model):
                 self.subcategory.name[1].upper() +
                 str(same_cat_products_count + 1).zfill(3)
                 )
-        self.units_per_lay = self.units_per_package * self.packages_per_lay
-        self.units_per_palet = self.units_per_lay * self.lay_per_palet
-        self.packages_per_palet = self.packages_per_lay * self.lay_per_palet
-        current_settings = get_object_or_404(AppSettings, valid=True)
-        enviroment_tax_base = current_settings.enviroment_tax_base
-        self.enviroment_tax_amount = int(self.enviroment_tax_class) * enviroment_tax_base
-        super().save(*args, **kwargs)
+            check_for_dubble_entries = Product.objects.filter(name=self.name).count()
+            if check_for_dubble_entries == 0:
+                self.units_per_lay = self.units_per_package * self.packages_per_lay
+                self.units_per_palet = self.units_per_lay * self.lay_per_palet
+                self.packages_per_palet = self.packages_per_lay * self.lay_per_palet
+                current_settings = get_object_or_404(AppSettings, valid=True)
+                enviroment_tax_base = current_settings.enviroment_tax_base
+                self.enviroment_tax_amount = int(self.enviroment_tax_class) * enviroment_tax_base
+                super().save(*args, **kwargs)
+        else:
+            self.units_per_lay = self.units_per_package * self.packages_per_lay
+            self.units_per_palet = self.units_per_lay * self.lay_per_palet
+            self.packages_per_palet = self.packages_per_lay * self.lay_per_palet
+            current_settings = get_object_or_404(AppSettings, valid=True)
+            enviroment_tax_base = current_settings.enviroment_tax_base
+            self.enviroment_tax_amount = int(self.enviroment_tax_class) * enviroment_tax_base
+            super().save(*args, **kwargs)
 
 
 class HandlingUnit(models.Model):
@@ -143,7 +153,7 @@ class HandlingUnit(models.Model):
     hu = models.CharField(max_length=20, blank=False, null=False, default="0")
     batch_nr = models.CharField(max_length=9, blank=True, null=True)
     release_date = models.DateField(auto_now_add=False)
-    tht = models.DateField(auto_now_add=False, default=timezone.now)
+    tht = models.DateField(auto_now_add=False, null=True)
 
     def save(self, *args, **kwargs):
         if self.hu == "0":

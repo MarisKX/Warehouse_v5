@@ -98,8 +98,11 @@ class Company(models.Model):
                 company_count + 1).zfill(4)
         self.manufacturer_code = letter_to_number(self.display_name)
         self.name = self.display_name.replace(" ", "_").lower()
-        self.total_salaries_cost = self.total_bruto_salaries + self.total_salary_vsaoi_dd
         self.employee_count = Employees.objects.filter(company=self.registration_number).count()
+        if self.employee_count > 0:
+            self.total_salaries_cost = self.total_bruto_salaries + self.total_salary_vsaoi_dd
+        else:
+            self.total_salaries_cost = 0
         super().save(*args, **kwargs)
 
 

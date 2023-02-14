@@ -36,9 +36,9 @@ def all_products(request):
         category = request.GET.get('category')
         if category is not None:
             subcategories = SubCategory.objects.filter(
-                category=category).values_list('display_name')
+                category=category).order_by("display_name").values_list('display_name')
             subcategories_id = SubCategory.objects.filter(
-                category=category).values_list('id')
+                category=category).order_by("display_name").values_list('id')
             return JsonResponse({
                 "subcategories_to_return": list(subcategories),
                 "subcategories_id_to_return": list(subcategories_id),
@@ -48,18 +48,24 @@ def all_products(request):
         if 'category' and 'subcategory' in request.GET:
             query_filter_category = request.GET['category']
             query_filter_subcategory = request.GET['subcategory']
-
-            queries = Q(
-                category__id__icontains=query_filter_category) & Q(
-                subcategory__id__icontains=query_filter_subcategory)
-            products = products.filter(queries)
+            if query_filter_subcategory != "":
+                queries = Q(
+                    category_id=query_filter_category) & Q(
+                    subcategory_id=query_filter_subcategory)
+                products = products.filter(queries)
+            else:
+                queries = Q(
+                    category__id__icontains=query_filter_category)
+                products = products.filter(queries)
 
         if 'category' in request.GET:
             query_filter_category = request.GET['category']
-
-            queries = Q(
-                category__id__icontains=query_filter_category)
-            products = products.filter(queries)
+            if query_filter_category != "":
+                queries = Q(
+                    category__id__icontains=query_filter_category)
+                products = products.filter(queries)
+            else:
+                Product.objects.all().order_by("display_name")
 
     context = {
         'products': products,
@@ -246,10 +252,9 @@ def add_product(request):
         category = request.GET.get('category')
         if category is not None:
             subcategories = SubCategory.objects.filter(
-                category=category).values_list('display_name')
+                category=category).order_by("display_name").values_list('display_name')
             subcategories_id = SubCategory.objects.filter(
-                category=category).values_list('id')
-            print(subcategories_id, subcategories)
+                category=category).order_by("display_name").values_list('id')
             return JsonResponse({
                 "subcategories_to_return": list(subcategories),
                 "subcategories_id_to_return": list(subcategories_id),
@@ -268,7 +273,6 @@ def add_product(request):
             add_cat_form = CategoryForm(request.POST or None)
             if add_cat_form.is_valid():
                 obj = add_cat_form.save(commit=False)
-                print(obj)
                 obj.save()
                 add_cat_form = CategoryForm()
                 return HttpResponseRedirect(reverse("add_product"))
