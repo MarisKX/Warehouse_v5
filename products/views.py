@@ -15,7 +15,9 @@ from reportlab.graphics.barcode import eanbc, qr, usps
 from reportlab.graphics import renderPDF
 from reportlab.graphics.shapes import Drawing
 # Model imports
-from .models import Product, Category, SubCategory
+from .models import Product, Category, SubCategory, HandlingUnit, HandlingUnitMovement
+from companies.models import Company
+from warehouses.models import Warehouse
 # Form imports
 from .forms import ProductForm, CategoryForm, SubCategoryForm
 
@@ -301,3 +303,61 @@ def add_product(request):
     }
 
     return render(request, 'products/add_product.html', context)
+
+
+@login_required
+def all_handling_units(request):
+    """ A view to show all hu's, including sorting and search queries """
+
+    handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("release_date")
+    handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("release_date")
+    products = Product.objects.all()
+    manufacturers = Company.objects.all()
+
+    def is_ajax(request):
+        return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+    if is_ajax(request):
+        category = request.GET.get('category')
+        if category is not None:
+            subcategories = SubCategory.objects.filter(
+                category=category).order_by("display_name").values_list('display_name')
+            subcategories_id = SubCategory.objects.filter(
+                category=category).order_by("display_name").values_list('id')
+            return JsonResponse({
+                "subcategories_to_return": list(subcategories),
+                "subcategories_id_to_return": list(subcategories_id),
+                })
+
+    if request.GET:
+        if 'manufacturer' and 'product' in request.GET:
+            query_filter_manufacturer = request.GET['manufacturer']
+            query_filter_product = request.GET['product']
+            if query_filter_manufacturer != "" and query_filter_product != "":
+                queries = Q(
+                    manufacturer_id=query_filter_manufacturer) & Q(
+                    product_id=query_filter_product)
+                handling_units_with_units = handling_units_with_units.filter(queries)
+                handling_units_with_packages = handling_units_with_packages.filter(queries)
+            elif query_filter_manufacturer != "":
+                queries = Q(
+                    manufacturer_id=query_filter_manufacturer)
+                handling_units_with_units = handling_units_with_units.filter(queries)
+                handling_units_with_packages = handling_units_with_packages.filter(queries)
+            elif query_filter_product != "":
+                queries = Q(
+                    product_id=query_filter_product)
+                handling_units_with_units = handling_units_with_units.filter(queries)
+                handling_units_with_packages = handling_units_with_packages.filter(queries)
+            else:
+                handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("release_date")
+                handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("release_date")
+
+    context = {
+        'handling_units_with_units': handling_units_with_units,
+        'handling_units_with_packages': handling_units_with_packages,
+        'products': products,
+        'manufacturers': manufacturers,
+    }
+
+    return render(request, 'products/handling_units.html', context)

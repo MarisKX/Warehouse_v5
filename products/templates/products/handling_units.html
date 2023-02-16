@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}All HU's{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h4 class="my-5 mx-5">All HU's</h4>  
+    </div>
+    <div class="row">
+        <form method="GET" action="{% url 'all_handling_units' %}">
+            <div class="row">
+                <div class="col-2 offset-2">
+                    <h6 class="mt-4 ms-3">Manufacturer:</h6>
+                    <select class="select category-search-list" name="manufacturer">
+                        <option value="">Select All</option>
+                        {% for manufacturer in manufacturers %}
+                            <option value="{{ manufacturer.registration_number }}">{{ manufacturer.display_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-2">
+                    <h6 class="mt-4 ms-3">Product:</h6>
+                    <select class="select category-search-list" name="product">
+                        <option value="">Select All</option>
+                        {% for product in products %}
+                            <option value="{{ product.id }}">{{ product.display_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-2 pt-5">
+                    <button type="submit" class="btn btn-secondary bg-green">
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6 offset-md-3 pb-5 pt-5">
+        <table class="table table-striped caption-top">
+            <caption>Unit HU</caption>
+            <thead>
+                <tr>
+                    <th scope="col">HU</th>
+                    <th scope="col">Manufacturer</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Units</th>
+                    <th scope="col">Release Date</th>
+                    <th scope="col">THT date</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for hu in handling_units_with_units %}
+                    <tr>
+                        <td>{{ hu.hu }}</td>
+                        <td>{{ hu.manufacturer.display_name }}</td>
+                        <td>{{ hu.location.display_name }}</td>
+                        <td>{{ hu.product.display_name }}</td>
+                        <td class="amount_in_units">{{ hu.qty }}</td>
+                        <td>{{ hu.get_qty_units_display }}</td>
+                        <td>{{ hu.release_date }}</td>
+                        {% if hu.tht == None %}
+                            <td>-</td>
+                        {% else %}
+                            <td>{{ hu.tht }}</td>
+                        {% endif %}
+                        <td><i class="fa-sharp fa-solid fa-pen-to-square"></i></td>
+                        <td class="pointer"><i class="fa-light fa-file-pdf"></i></td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total:</td>
+                    <td id="total_amount_for_units"></td>
+                    <td>Units</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-striped caption-top">
+            <caption>Packages HU</caption>
+            <thead>
+                <tr>
+                    <th scope="col">HU</th>
+                    <th scope="col">Manufacturer</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Product</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">Units</th>
+                    <th scope="col">Release Date</th>
+                    <th scope="col">THT date</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">PDF</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hu in handling_units_with_packages %}
+                    <tr>
+                        <td>{{ hu.hu }}</td>
+                        <td>{{ hu.manufacturer.display_name }}</td>
+                        <td>{{ hu.location.display_name }}</td>
+                        <td>{{ hu.product.display_name }}</td>
+                        <td class="amount_in_packages">{{ hu.qty }}</td>
+                        <td>{{ hu.get_qty_units_display }}</td>
+                        <td>{{ hu.release_date }}</td>
+                        {% if hu.tht == None %}
+                            <td>-</td>
+                        {% else %}
+                            <td>{{ hu.tht }}</td>
+                        {% endif %}
+                        <td><i class="fa-sharp fa-solid fa-pen-to-square"></i></td>
+                        <td class="pointer"><i class="fa-light fa-file-pdf"></i></td>
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total:</td>
+                    <td id="total_amount_for_packages"></td>
+                    <td>Packages</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+              </tbody>
+        </table>
+    </div>
+    
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}
+    <!-- Custom Scripts -->
+    <script src="{% static 'js/columnCounterHUview.js' %}"></script>
+
+{% endblock %}

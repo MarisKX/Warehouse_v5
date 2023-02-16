@@ -37,11 +37,11 @@
             <li><hr class="dropdown-divider"></li>
             <li>
               <a class="dropdown-item" href="#">
-                Stock Level <span> > </span>
+                Handling Units <span> > </span>
               </a>
               <ul class="dropdown-menu dropdown-submenu">
                 <li>
-                  <a class="dropdown-item" href="#">All Stock Levels</a>
+                  <a class="dropdown-item" href="{% url 'all_handling_units' %}">All Handling Units</a>
                 </li>
                 <li><hr class="dropdown-divider"></li>
                 {% for c in all_companies_with_stock %}

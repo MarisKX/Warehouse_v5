@@ -75,6 +75,8 @@ class HandlingUnitAdmin(admin.ModelAdmin):
     readonly_fields = (
         'hu',
         'active',
+        'tht_warning_date',
+        'tht',
         )
     list_display = (
         'hu',
@@ -84,6 +86,7 @@ class HandlingUnitAdmin(admin.ModelAdmin):
         'qty_units',
         'batch_nr',
         'release_date',
+        'tht_warning_date',
         'tht',
         'active',
     )

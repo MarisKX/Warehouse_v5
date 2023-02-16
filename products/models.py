@@ -153,6 +153,7 @@ class HandlingUnit(models.Model):
     hu = models.CharField(max_length=20, blank=False, null=False, default="0")
     batch_nr = models.CharField(max_length=9, blank=True, null=True)
     release_date = models.DateField(auto_now_add=False)
+    tht_warning_date = models.DateField(auto_now_add=False, null=True)
     tht = models.DateField(auto_now_add=False, null=True)
     active = models.BooleanField(default=True)
 
@@ -168,14 +169,19 @@ class HandlingUnit(models.Model):
         product_tht_let = get_object_or_404(Product, name=self.product).expiry_end_date_cat
         if product_tht_let == "1":
             self.tht = self.release_date + timedelta(days=product_tht_int)
+            self.tht_warning_date = self.tht - timedelta(days=2)
         elif product_tht_let == "2":
             self.tht = self.release_date + timedelta(weeks=product_tht_int)
+            self.tht_warning_date = self.tht - timedelta(days=5)
         elif product_tht_let == "3":
             self.tht = self.release_date + relativedelta(months=+product_tht_int)
+            self.tht_warning_date = self.tht - timedelta(days=15)
         elif product_tht_let == "4":
             self.tht = self.release_date + relativedelta(years=+product_tht_int)
+            self.tht_warning_date = self.tht - timedelta(days=45)
         elif product_tht_let == "5":
             self.tht = self.release_date + relativedelta(months=+product_tht_int) + relativedelta(day=31)
+            self.tht_warning_date = self.tht - timedelta(days=90)
 
         super().save(*args, **kwargs)
 
