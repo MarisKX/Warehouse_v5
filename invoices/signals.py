@@ -3,6 +3,12 @@ from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 
+from datetime import *
+from django.utils import timezone
+from datetime import timedelta, date
+import datetime
+from dateutil.relativedelta import *
+
 from products.models import HandlingUnit, HandlingUnitMovement
 from warehouses.models import Warehouse
 
@@ -10,6 +16,8 @@ from .models import (
     WorkOrder,
     WorkOrderItemProduction,
     WorkOrderItemRawMat,
+    Invoice,
+    InvoiceItem,
 )
 
 
@@ -238,3 +246,18 @@ def grab_items_from_hu_on_work_order_save(
                         qty=packages_from_current_hu,
                     )
                     packages_to_use = leftover
+
+
+# General Invoices
+@receiver(post_save, sender=Invoice)
+def create_on_save(sender, instance, created, **kwargs):
+    """
+    Create Invoice number
+    """
+    if instance.invoice_number == "AA00001":
+        invoice_count = Invoice.objects.filter(
+            suplier=instance.suplier).count()
+        invoice_prefix = instance.suplier.invoice_prefix
+        instance.invoice_number = invoice_prefix + str(invoice_count).zfill(5)
+        instance.payment_term = instance.date + timedelta(days=int(instance.payment_term_options))
+        instance.save()

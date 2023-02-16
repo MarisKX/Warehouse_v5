@@ -7,6 +7,7 @@ from warehouses.models import Warehouse
 from products.models import Product, HandlingUnit
 
 
+# WorkOrders and lineitems for them
 class WorkOrder(models.Model):
     work_order_number = models.CharField(max_length=10, default='WO00001')
     company = models.ForeignKey(
@@ -78,3 +79,81 @@ class WorkOrderItemProduction(models.Model):
         else:
             print("Cannot divide in packages AND units")
             pass
+
+
+# General Invoices and lineitems for them
+class Invoice(models.Model):
+    invoice_number = models.CharField(max_length=8, default='AA00001')
+    suplier = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="suplier")
+    suplier_warehouse = models.ForeignKey(
+        Warehouse, on_delete=models.CASCADE, related_name="suplier_warehouse")
+    customer = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="customer")
+    customer_warehouse = models.ForeignKey(
+        Warehouse, on_delete=models.CASCADE, related_name="customer_warehouse")
+    date = models.DateField(auto_now_add=False)
+    payment_term_choices = [
+        ('7', '7 days'),
+        ('14', '14 days'),
+        ('21', '21 day'),
+        ('30', '30 days'),
+        ('60', '60 days'),
+    ]
+
+    payment_term_options = models.CharField(
+        max_length=10, choices=payment_term_choices, default='14')
+    payment_term = models.DateField(auto_now_add=False, null=True)
+    invoice_paid = models.BooleanField(default=False)
+    invoice_paid_confirmed = models.BooleanField(default=False)
+    amount_total = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+    btw_total = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+    amount_total_with_btw = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+
+    def update_invoice_total(self):
+        """
+        Update grand total each time a line item is added,
+        accounting for delivery costs.
+        """
+        self.amount_total = self.lineitems.aggregate(
+            Sum('lineitem_total'))['lineitem_total__sum'] or 0
+        self.btw_total = (self.amount_total / 100) * 21
+        self.amount_total_with_btw = self.amount_total + self.btw_total
+        super().save()
+
+    def __str__(self):
+        return self.invoice_number
+
+
+class InvoiceItem(models.Model):
+    invoice = models.ForeignKey(
+        Invoice, null=False, blank=False,
+        on_delete=models.CASCADE, related_name='lineitems')
+    product = models.ForeignKey(
+        Product, null=False, blank=False, on_delete=models.CASCADE)
+    quantity_in_units = models.IntegerField(null=False, blank=False, default=0)
+    quantity_in_packages = models.IntegerField(null=False, blank=False, default=0)
+    price = models.DecimalField(
+        max_digits=6, decimal_places=2, default=0.00, blank=False)
+    lineitem_total = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True)
+    btw = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+    lineitem_total_with_btw = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Override the original save method to set the lineitem total
+        and update the order total.
+        """
+        if self.quantity_in_units > 0:
+            self.lineitem_total = self.price * self.quantity_in_units
+        else:
+            self.lineitem_total = self.price * self.quantity_in_packages
+        self.btw = (self.lineitem_total / 100) * 21
+        self.lineitem_total_with_btw = self.lineitem_total + self.btw
+        super().save(*args, **kwargs)
