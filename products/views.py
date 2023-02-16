@@ -309,25 +309,13 @@ def add_product(request):
 def all_handling_units(request):
     """ A view to show all hu's, including sorting and search queries """
 
-    handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("release_date")
-    handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("release_date")
+    handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("manufacturer").order_by("product")
+    handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("manufacturer").order_by("product")
     products = Product.objects.all()
     manufacturers = Company.objects.all()
 
     def is_ajax(request):
         return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
-
-    if is_ajax(request):
-        category = request.GET.get('category')
-        if category is not None:
-            subcategories = SubCategory.objects.filter(
-                category=category).order_by("display_name").values_list('display_name')
-            subcategories_id = SubCategory.objects.filter(
-                category=category).order_by("display_name").values_list('id')
-            return JsonResponse({
-                "subcategories_to_return": list(subcategories),
-                "subcategories_id_to_return": list(subcategories_id),
-                })
 
     if request.GET:
         if 'manufacturer' and 'product' in request.GET:
