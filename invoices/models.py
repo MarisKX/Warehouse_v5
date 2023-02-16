@@ -43,7 +43,8 @@ class WorkOrderItemRawMat(models.Model):
     product = models.ForeignKey(
         Product, null=False, blank=False,
         on_delete=models.CASCADE, related_name='raw_materials')
-    quantity = models.IntegerField(null=False, blank=False, default=0)
+    quantity_in_units = models.IntegerField(null=False, blank=False, default=0)
+    quantity_in_packages = models.IntegerField(null=False, blank=False, default=0)
 
 
 class WorkOrderItemProduction(models.Model):

@@ -9,7 +9,8 @@ class WorkOrderItemRawMatAdmin(admin.TabularInline):
     list_display = (
         'work_order',
         'product',
-        'quantity'
+        'quantity_in_units',
+        'quantity_in_packages',
     )
 
     ordering = ('work_order',)

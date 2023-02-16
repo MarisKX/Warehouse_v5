@@ -154,6 +154,10 @@ class HandlingUnit(models.Model):
     batch_nr = models.CharField(max_length=9, blank=True, null=True)
     release_date = models.DateField(auto_now_add=False)
     tht = models.DateField(auto_now_add=False, null=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.hu
 
     def save(self, *args, **kwargs):
         if self.hu == "0":
@@ -174,3 +178,14 @@ class HandlingUnit(models.Model):
             self.tht = self.release_date + relativedelta(months=+product_tht_int) + relativedelta(day=31)
 
         super().save(*args, **kwargs)
+
+
+class HandlingUnitMovement(models.Model):
+    hu = models.ForeignKey(HandlingUnit, null=False, blank=False, on_delete=models.CASCADE, related_name="main_hu")
+    date = models.DateField(auto_now_add=False)
+    doc_nr = models.CharField(max_length=20, blank=False, null=False, default="0")
+    qty = models.IntegerField(default=0, blank=False, null=False)
+    from_location = models.CharField(max_length=60, blank=False, null=False, default="0")
+    from_hu = models.CharField(max_length=60, blank=False, null=False, default="")
+    to_location = models.CharField(max_length=60, blank=False, null=False, default="0")
+    to_hu = models.CharField(max_length=60, blank=False, null=False, default="")

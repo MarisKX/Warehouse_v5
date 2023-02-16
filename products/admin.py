@@ -4,6 +4,7 @@ from .models import (
     Category,
     SubCategory,
     HandlingUnit,
+    HandlingUnitMovement,
     )
 
 # Register your models here.
@@ -54,9 +55,26 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ('display_name',)
 
 
+class HandlingUnitMovementAdmin(admin.TabularInline):
+    model = HandlingUnitMovement
+    readonly_fields = ('hu', )
+    list_display = (
+        'date',
+        'doc_nr',
+        'qty',
+        'from_location',
+        'from_hu',
+        'to_location',
+        'to_hu',
+
+    )
+
+
 class HandlingUnitAdmin(admin.ModelAdmin):
+    inlines = (HandlingUnitMovementAdmin,)
     readonly_fields = (
         'hu',
+        'active',
         )
     list_display = (
         'hu',
@@ -67,6 +85,7 @@ class HandlingUnitAdmin(admin.ModelAdmin):
         'batch_nr',
         'release_date',
         'tht',
+        'active',
     )
 
     ordering = ('hu',)
