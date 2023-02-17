@@ -81,6 +81,7 @@ class HandlingUnitAdmin(admin.ModelAdmin):
     list_display = (
         'hu',
         'manufacturer',
+        'company',
         'product',
         'qty',
         'qty_units',

@@ -10,7 +10,7 @@ class Warehouse(models.Model):
         null=True,
         blank=False,
         on_delete=models.CASCADE,
-        related_name='company')
+        related_name='warehouse_owner')
     name = models.CharField(max_length=254, blank=True, null=True, default="warehouse")
     display_name = models.CharField(max_length=254, blank=True)
     warehouse_code = models.CharField(default="0", max_length=2, blank=True)

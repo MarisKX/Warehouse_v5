@@ -16,12 +16,12 @@
     <div class="row">
         <form method="GET" action="{% url 'all_handling_units' %}">
             <div class="row">
-                <div class="col-2 offset-2">
-                    <h6 class="mt-4 ms-3">Manufacturer:</h6>
-                    <select class="select category-search-list" name="manufacturer">
+                <div class="col-2 offset-3">
+                    <h6 class="mt-4 ms-3">Company:</h6>
+                    <select class="select category-search-list" name="company">
                         <option value="">Select All</option>
-                        {% for manufacturer in manufacturers %}
-                            <option value="{{ manufacturer.registration_number }}">{{ manufacturer.display_name}}</option>
+                        {% for company in companies %}
+                            <option value="{{ company.registration_number }}">{{ company.display_name}}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -49,6 +49,7 @@
                 <tr>
                     <th scope="col">HU</th>
                     <th scope="col">Manufacturer</th>
+                    <th scope="col">Company</th>
                     <th scope="col">Location</th>
                     <th scope="col">Product</th>
                     <th scope="col">Qty</th>
@@ -64,6 +65,7 @@
                     <tr>
                         <td>{{ hu.hu }}</td>
                         <td>{{ hu.manufacturer.display_name }}</td>
+                        <td>{{ hu.company.display_name }}</td>
                         <td>{{ hu.location.display_name }}</td>
                         <td>{{ hu.product.display_name }}</td>
                         <td class="amount_in_units">{{ hu.qty }}</td>
@@ -79,6 +81,7 @@
                     </tr>
                 {% endfor %}
                 <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -98,6 +101,7 @@
                 <tr>
                     <th scope="col">HU</th>
                     <th scope="col">Manufacturer</th>
+                    <th scope="col">Company</th>
                     <th scope="col">Location</th>
                     <th scope="col">Product</th>
                     <th scope="col">Qty</th>
@@ -113,6 +117,7 @@
                     <tr>
                         <td>{{ hu.hu }}</td>
                         <td>{{ hu.manufacturer.display_name }}</td>
+                        <td>{{ hu.company.display_name }}</td>
                         <td>{{ hu.location.display_name }}</td>
                         <td>{{ hu.product.display_name }}</td>
                         <td class="amount_in_packages">{{ hu.qty }}</td>
@@ -128,6 +133,7 @@
                     </tr>
                 {% endfor %}
                 <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>

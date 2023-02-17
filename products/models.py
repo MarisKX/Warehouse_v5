@@ -140,7 +140,8 @@ class Product(models.Model):
 
 
 class HandlingUnit(models.Model):
-    manufacturer = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL)
+    manufacturer = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL, related_name="manufacturer")
+    company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL, related_name="company")
     location = models.ForeignKey(Warehouse, null=True, blank=True, on_delete=models.SET_NULL, related_name="warehouse")
     product = models.ForeignKey('Product', null=True, blank=True, on_delete=models.SET_NULL)
     qty = models.IntegerField(default=1, blank=True)

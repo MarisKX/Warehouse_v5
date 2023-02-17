@@ -309,27 +309,27 @@ def add_product(request):
 def all_handling_units(request):
     """ A view to show all hu's, including sorting and search queries """
 
-    handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("manufacturer").order_by("product")
-    handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("manufacturer").order_by("product")
+    handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("company").order_by("product").order_by("release_date")
+    handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("company").order_by("product").order_by("release_date")
     products = Product.objects.all()
-    manufacturers = Company.objects.all()
+    companies = Company.objects.all()
 
     def is_ajax(request):
         return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
     if request.GET:
-        if 'manufacturer' and 'product' in request.GET:
-            query_filter_manufacturer = request.GET['manufacturer']
+        if 'company' and 'product' in request.GET:
+            query_filter_company = request.GET['company']
             query_filter_product = request.GET['product']
-            if query_filter_manufacturer != "" and query_filter_product != "":
+            if query_filter_company != "" and query_filter_product != "":
                 queries = Q(
-                    manufacturer_id=query_filter_manufacturer) & Q(
+                    company_id=query_filter_company) & Q(
                     product_id=query_filter_product)
                 handling_units_with_units = handling_units_with_units.filter(queries)
                 handling_units_with_packages = handling_units_with_packages.filter(queries)
-            elif query_filter_manufacturer != "":
+            elif query_filter_company != "":
                 queries = Q(
-                    manufacturer_id=query_filter_manufacturer)
+                    company_id=query_filter_company)
                 handling_units_with_units = handling_units_with_units.filter(queries)
                 handling_units_with_packages = handling_units_with_packages.filter(queries)
             elif query_filter_product != "":
@@ -338,14 +338,14 @@ def all_handling_units(request):
                 handling_units_with_units = handling_units_with_units.filter(queries)
                 handling_units_with_packages = handling_units_with_packages.filter(queries)
             else:
-                handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("release_date")
-                handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("release_date")
+                handling_units_with_units = handling_units_with_units
+                handling_units_with_packages = handling_units_with_packages
 
     context = {
         'handling_units_with_units': handling_units_with_units,
         'handling_units_with_packages': handling_units_with_packages,
         'products': products,
-        'manufacturers': manufacturers,
+        'companies': companies,
     }
 
     return render(request, 'products/handling_units.html', context)

@@ -60,6 +60,7 @@ def create_new_hu_on_work_order_save(
             qty_units = "0"
         HandlingUnit.objects.create(
                 manufacturer=instance.work_order.company,
+                company=instance.work_order.company,
                 location=instance.work_order.warehouse_production,
                 product=instance.product,
                 qty=qty,
@@ -69,6 +70,7 @@ def create_new_hu_on_work_order_save(
             )
         hu_made = HandlingUnit.objects.filter(
             manufacturer=instance.work_order.company,
+            company=instance.work_order.company,
             location=instance.work_order.warehouse_production,
             product=instance.product,
             qty=qty,
@@ -81,7 +83,7 @@ def create_new_hu_on_work_order_save(
                 date=instance.work_order.date,
                 doc_nr=instance.work_order.work_order_number,
                 from_location="Production",
-                to_location="Warehouse",
+                to_location=instance.work_order.company.display_name,
                 from_hu="-",
                 to_hu=hu_made.hu,
                 qty=qty,
@@ -100,7 +102,11 @@ def grab_items_from_hu_on_work_order_save(
             while units_to_use > 0:
                 try:
                     hu_with_product = HandlingUnit.objects.filter(
-                        product=instance.product, qty_units='0', active=True).order_by('release_date')[0]
+                        company=instance.work_order.company,
+                        product=instance.product,
+                        qty_units='0',
+                        active=True
+                        ).order_by('release_date')[0]
 
                     if hu_with_product.qty > instance.quantity_in_units:
                         hu_with_product.qty = hu_with_product.qty - instance.quantity_in_units
@@ -109,7 +115,7 @@ def grab_items_from_hu_on_work_order_save(
                             hu=hu_with_product,
                             date=instance.work_order.date,
                             doc_nr=instance.work_order.work_order_number,
-                            from_location="Warehouse",
+                            from_location=instance.work_order.company.display_name,
                             to_location="Production",
                             from_hu=hu_with_product.hu,
                             to_hu="-",
@@ -125,7 +131,7 @@ def grab_items_from_hu_on_work_order_save(
                             hu=hu_with_product,
                             date=instance.work_order.date,
                             doc_nr=instance.work_order.work_order_number,
-                            from_location="Warehouse",
+                            from_location=instance.work_order.company.display_name,
                             to_location="Production",
                             from_hu=hu_with_product.hu,
                             to_hu="-",
@@ -143,7 +149,7 @@ def grab_items_from_hu_on_work_order_save(
                             hu=hu_with_product,
                             date=instance.work_order.date,
                             doc_nr=instance.work_order.work_order_number,
-                            from_location="Warehouse",
+                            from_location=instance.work_order.company.display_name,
                             to_location="Production",
                             from_hu=hu_with_product.hu,
                             to_hu="-",
@@ -154,7 +160,11 @@ def grab_items_from_hu_on_work_order_save(
                 except IndexError:
                     try:
                         hu_with_product = HandlingUnit.objects.filter(
-                            product=instance.product, qty_units='1', active=True).order_by('release_date')[0]
+                            company=instance.work_order.company,
+                            product=instance.product,
+                            qty_units='1',
+                            active=True
+                            ).order_by('release_date')[0]
                         if hu_with_product.qty == 1:
                             hu_with_product.qty = hu_with_product.qty - 1
                             hu_with_product.active = False
@@ -164,6 +174,7 @@ def grab_items_from_hu_on_work_order_save(
                             hu_with_product.save()
                         HandlingUnit.objects.create(
                             manufacturer=instance.work_order.company,
+                            company=instance.work_order.company,
                             location=instance.work_order.warehouse_production,
                             product=instance.product,
                             qty=instance.product.units_per_package,
@@ -173,6 +184,7 @@ def grab_items_from_hu_on_work_order_save(
                         )
                         hu_made = HandlingUnit.objects.filter(
                             manufacturer=instance.work_order.company,
+                            company=instance.work_order.company,
                             location=instance.work_order.warehouse_production,
                             product=instance.product,
                             qty=instance.product.units_per_package,
@@ -184,8 +196,8 @@ def grab_items_from_hu_on_work_order_save(
                             hu=hu_made,
                             date=instance.work_order.date,
                             doc_nr=instance.work_order.work_order_number,
-                            from_location="Warehouse",
-                            to_location="Warehouse",
+                            from_location=instance.work_order.company.display_name,
+                            to_location=instance.work_order.company.display_name,
                             from_hu=hu_with_product.hu,
                             to_hu=hu_made.hu,
                             qty=instance.product.units_per_package,
@@ -198,7 +210,11 @@ def grab_items_from_hu_on_work_order_save(
             packages_to_use = instance.quantity_in_packages
             while packages_to_use > 0:
                 hu_with_product = HandlingUnit.objects.filter(
-                    product=instance.product, qty_units='1', active=True).order_by('release_date')[0]
+                    company=instance.work_order.company,
+                    product=instance.product,
+                    qty_units='1',
+                    active=True
+                    ).order_by('release_date')[0]
                 if hu_with_product.qty > instance.quantity_in_packages:
                     hu_with_product.qty = hu_with_product.qty - instance.quantity_in_packages
                     hu_with_product.save()
@@ -206,7 +222,7 @@ def grab_items_from_hu_on_work_order_save(
                         hu=hu_with_product,
                         date=instance.work_order.date,
                         doc_nr=instance.work_order.work_order_number,
-                        from_location="Warehouse",
+                        from_location=instance.work_order.company.display_name,
                         to_location="Production",
                         from_hu=hu_with_product.hu,
                         to_hu="-",
@@ -222,7 +238,7 @@ def grab_items_from_hu_on_work_order_save(
                         hu=hu_with_product,
                         date=instance.work_order.date,
                         doc_nr=instance.work_order.work_order_number,
-                        from_location="Warehouse",
+                        from_location=instance.work_order.company.display_name,
                         to_location="Production",
                         from_hu=hu_with_product.hu,
                         to_hu="-",
@@ -240,7 +256,7 @@ def grab_items_from_hu_on_work_order_save(
                         hu=hu_with_product,
                         date=instance.work_order.date,
                         doc_nr=instance.work_order.work_order_number,
-                        from_location="Warehouse",
+                        from_location=instance.work_order.company.display_name,
                         to_location="Production",
                         from_hu=hu_with_product.hu,
                         to_hu="-",
@@ -292,7 +308,7 @@ def grab_items_from_hu_on_invoice_save(
             while units_to_use > 0:
                 try:
                     hu_with_product = HandlingUnit.objects.filter(
-                        manufacturer=instance.invoice.suplier,
+                        company=instance.invoice.suplier,
                         location=instance.invoice.suplier_warehouse,
                         product=instance.product,
                         qty_units='0',
@@ -303,7 +319,8 @@ def grab_items_from_hu_on_invoice_save(
                         hu_with_product.save()
 
                         HandlingUnit.objects.create(
-                            manufacturer=instance.invoice.suplier,
+                            manufacturer=hu_with_product.manufacturer,
+                            company=instance.invoice.suplier,
                             location=instance.invoice.suplier_warehouse,
                             product=instance.product,
                             qty=instance.quantity_in_units,
@@ -313,7 +330,8 @@ def grab_items_from_hu_on_invoice_save(
                         )
 
                         hu_made = HandlingUnit.objects.filter(
-                            manufacturer=instance.invoice.suplier,
+                            manufacturer=hu_with_product.manufacturer,
+                            company=instance.invoice.suplier,
                             location=instance.invoice.suplier_warehouse,
                             product=instance.product,
                             qty=instance.quantity_in_units,
@@ -326,8 +344,8 @@ def grab_items_from_hu_on_invoice_save(
                             hu=hu_with_product,
                             date=instance.invoice.date,
                             doc_nr=instance.invoice.invoice_number,
-                            from_location="Warehouse",
-                            to_location="Warehouse",
+                            from_location=instance.invoice.suplier,
+                            to_location=instance.invoice.suplier,
                             from_hu=hu_with_product.hu,
                             to_hu=hu_made,
                             qty=instance.quantity_in_units,
@@ -337,14 +355,14 @@ def grab_items_from_hu_on_invoice_save(
                             hu=hu_made,
                             date=instance.invoice.date,
                             doc_nr=instance.invoice.invoice_number,
-                            from_location="Warehouse",
-                            to_location="Warehouse",
+                            from_location=instance.invoice.suplier,
+                            to_location=instance.invoice.suplier,
                             from_hu=hu_with_product.hu,
                             to_hu=hu_made,
                             qty=instance.quantity_in_units,
                         )
 
-                        hu_made.manufacturer = instance.invoice.customer
+                        hu_made.company = instance.invoice.customer
                         hu_made.location = instance.invoice.customer_warehouse
                         hu_made.save()
 
@@ -352,8 +370,8 @@ def grab_items_from_hu_on_invoice_save(
                             hu=hu_made,
                             date=instance.invoice.date,
                             doc_nr=instance.invoice.invoice_number,
-                            from_location="Warehouse",
-                            to_location="Warehouse",
+                            from_location=instance.invoice.suplier,
+                            to_location=instance.invoice.customer,
                             from_hu=hu_made,
                             to_hu=hu_made,
                             qty=instance.quantity_in_units,
@@ -362,16 +380,15 @@ def grab_items_from_hu_on_invoice_save(
                         units_to_use = 0
 
                     elif hu_with_product.qty == instance.quantity_in_units:
-                        manufacturer = Company.objects.get(registration_number=instance.invoice.customer.registration_number)
-                        hu_with_product.manufacturer.name = manufacturer,
+                        hu_with_product.company = instance.invoice.customer
                         hu_with_product.location = instance.invoice.customer_warehouse
                         hu_with_product.save()
                         HandlingUnitMovement.objects.create(
                             hu=hu_with_product,
                             date=instance.invoice.date,
                             doc_nr=instance.invoice.invoice_number,
-                            from_location="Warehouse",
-                            to_location="Warehouse",
+                            from_location=instance.invoice.suplier,
+                            to_location=instance.invoice.customer,
                             from_hu=hu_with_product.hu,
                             to_hu=hu_with_product.hu,
                             qty=instance.quantity_in_units,
@@ -380,21 +397,123 @@ def grab_items_from_hu_on_invoice_save(
 
                     else:
                         leftover = units_to_use - hu_with_product.qty
-                        units_from_current_hu = units_to_use - leftover
-                        hu_with_product.qty = 0
-                        hu_with_product.active = False
+                        hu_with_product.company = instance.invoice.customer
+                        hu_with_product.location = instance.invoice.customer_warehouse
                         hu_with_product.save()
                         HandlingUnitMovement.objects.create(
                             hu=hu_with_product,
-                            date=instance.work_order.date,
-                            doc_nr=instance.work_order.work_order_number,
-                            from_location="Warehouse",
-                            to_location="Production",
+                            date=instance.invoice.date,
+                            doc_nr=instance.invoice.invoice_number,
+                            from_location=instance.invoice.suplier,
+                            to_location=instance.invoice.customer,
                             from_hu=hu_with_product.hu,
-                            to_hu="",
-                            qty=units_from_current_hu,
+                            to_hu=hu_with_product.hu,
+                            qty=instance.quantity_in_units,
                         )
                         units_to_use = leftover
                 except IndexError:
                     print("Index Error")
-                    units_to_use = 0
+                    break
+
+        else:
+            packages_to_use = instance.quantity_in_packages
+            while packages_to_use > 0:
+                hu_with_product = HandlingUnit.objects.filter(
+                    product=instance.product, qty_units='1', active=True).order_by('release_date')[0]
+                if hu_with_product.qty > instance.quantity_in_packages:
+                    hu_with_product.qty = hu_with_product.qty - instance.quantity_in_packages
+                    hu_with_product.save()
+
+                    HandlingUnit.objects.create(
+                        manufacturer=hu_with_product.manufacturer,
+                        company=instance.invoice.suplier,
+                        location=instance.invoice.suplier_warehouse,
+                        product=instance.product,
+                        qty=instance.quantity_in_packages,
+                        qty_units="1",
+                        batch_nr=hu_with_product.batch_nr,
+                        release_date=hu_with_product.release_date,
+                    )
+
+                    hu_made = HandlingUnit.objects.filter(
+                        manufacturer=hu_with_product.manufacturer,
+                        company=instance.invoice.suplier,
+                        location=instance.invoice.suplier_warehouse,
+                        product=instance.product,
+                        qty=instance.quantity_in_packages,
+                        qty_units="1",
+                        batch_nr=hu_with_product.batch_nr,
+                        release_date=hu_with_product.release_date,
+                    ).last()
+
+                    HandlingUnitMovement.objects.create(
+                        hu=hu_with_product,
+                        date=instance.invoice.date,
+                        doc_nr=instance.invoice.invoice_number,
+                        from_location=instance.invoice.suplier,
+                        to_location=instance.invoice.suplier,
+                        from_hu=hu_with_product.hu,
+                        to_hu=hu_made,
+                        qty=instance.quantity_in_packages,
+                    )
+
+                    HandlingUnitMovement.objects.create(
+                            hu=hu_made,
+                            date=instance.invoice.date,
+                            doc_nr=instance.invoice.invoice_number,
+                            from_location=instance.invoice.suplier,
+                            to_location=instance.invoice.suplier,
+                            from_hu=hu_with_product.hu,
+                            to_hu=hu_made,
+                            qty=instance.quantity_in_packages,
+                        )
+
+                    hu_made.company = instance.invoice.customer
+                    hu_made.location = instance.invoice.customer_warehouse
+                    hu_made.save()
+
+                    HandlingUnitMovement.objects.create(
+                            hu=hu_made,
+                            date=instance.invoice.date,
+                            doc_nr=instance.invoice.invoice_number,
+                            from_location=instance.invoice.suplier,
+                            to_location=instance.invoice.customer,
+                            from_hu=hu_made,
+                            to_hu=hu_made,
+                            qty=instance.quantity_in_packages,
+                        )
+
+                    packages_to_use = 0
+
+                elif hu_with_product.qty == instance.quantity_in_packages:
+                    hu_with_product.company = instance.invoice.customer
+                    hu_with_product.location = instance.invoice.customer_warehouse
+                    hu_with_product.save()
+                    HandlingUnitMovement.objects.create(
+                        hu=hu_with_product,
+                        date=instance.invoice.date,
+                        doc_nr=instance.invoice.invoice_number,
+                        from_location=instance.invoice.suplier,
+                        to_location=instance.invoice.customer,
+                        from_hu=hu_with_product.hu,
+                        to_hu=hu_with_product.hu,
+                        qty=instance.quantity_in_packages,
+                    )
+                    packages_to_use = 0
+
+                else:
+                    leftover = packages_to_use - hu_with_product.qty
+                    hu_with_product.company = instance.invoice.customer
+                    hu_with_product.location = instance.invoice.customer_warehouse
+                    hu_with_product.save()
+                    HandlingUnitMovement.objects.create(
+                        hu=hu_with_product,
+                        date=instance.invoice.date,
+                        doc_nr=instance.invoice.invoice_number,
+                        from_location=instance.invoice.suplier,
+                        to_location=instance.invoice.customer,
+                        from_hu=hu_with_product.hu,
+                        to_hu=hu_with_product.hu,
+                        qty=instance.quantity_in_packages,
+                    )
+                    packages_to_use = leftover
