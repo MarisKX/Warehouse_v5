@@ -1,10 +1,6 @@
 <div class="row">
     <div class="col-12 col-lg-4 my-auto py-1 py-lg-0 text-center text-lg-left">
-      {% if request.user.is_authenticated %}
-        <a href="{% url 'home' %}" class="nav-link main-logo-link"><h2 class="logo-font my-0 text-green">ME | {{ company.full_name }}</h2></a>
-      {% else %}
         <a href="{% url 'home' %}" class="nav-link main-logo-link"><h2 class="logo-font my-0 text-green">Minecraft Economics</h2></a>
-      {% endif %}
     </div>
     <div class="col-12 col-lg-8 my-auto py-1 py-lg-0 text-center text-lg-left">
 

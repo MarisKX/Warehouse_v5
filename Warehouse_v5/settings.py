@@ -86,7 +86,7 @@ TEMPLATES = [
                 # Neccessary for media folder to be found
                 'django.template.context_processors.media',
                 # Custom made context processors
-                # 'home.context_processors.extras',
+                'home.context_processors.extras',
             ],
         },
     },
