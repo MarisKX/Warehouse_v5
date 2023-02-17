@@ -11,9 +11,9 @@
     <div class="col-2 my-2">
         <p>Last Action: {{ last_action_date }}</p>
     </div>
-    {% if actions_left < 1 %}
+    {% if actions_left < 2 %}
     <div class="col-3 my-2">
-        <p>Actions left: <span class="text-red">{{ actions_left }}</span></p>
+        <p class="text-red">Actions left: <span>{{ actions_left }}</span></p>
     </div>
     {% else %}
     <div class="col-3 my-2">
