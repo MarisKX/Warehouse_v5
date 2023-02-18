@@ -12,13 +12,51 @@
             Invoices
           </button>
           <ul class="dropdown-menu" aria-labelledby="invoices">
-            <li><a class="dropdown-item" href="#">New Incoming Invoice</a></li>
-            <li><a class="dropdown-item" href="#">All Incoming Invoices</a></li>
+            <li><a class="dropdown-item" href="#">New Invoice</a></li>
+            <li><a class="dropdown-item" href="{% url 'all_invoices' %}">All Invoices</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">New Sales Invoice</a></li>
-            <li><a class="dropdown-item" href="#">All Sales Invoices</a></li>
+            <li><a class="dropdown-item" href="#">New Work Order</a></li>
+            <li><a class="dropdown-item" href="#">All Work Orders</a></li>
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#">All Invoices and Sales</a></li>
+            <li><a class="dropdown-item" href="#">New Retail Sale</a></li>
+            <li><a class="dropdown-item" href="#">All Retail Sales</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#">New Construction Invoice</a></li>
+            <li><a class="dropdown-item" href="#">All Construction Invoices</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="#">
+                Incoming Doc By Company <span> > </span>
+              </a>
+              <ul class="dropdown-menu dropdown-submenu">
+                <li>
+                  <a class="dropdown-item" href="#">All Documents</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                {% for c in all_companies_with_stock %}
+                  <li>
+                    <a id="{{ c.registration_number }}" class="dropdown-item" href="#">{{ c.display_name }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item" href="#">
+                Outcoming Doc By Company <span> > </span>
+              </a>
+              <ul class="dropdown-menu dropdown-submenu">
+                <li>
+                  <a class="dropdown-item" href="#">All Documents</a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                {% for c in all_companies_with_stock %}
+                  <li>
+                    <a id="{{ c.registration_number }}" class="dropdown-item" href="#">{{ c.display_name }}</a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
           </ul>
         </li>
 
@@ -42,7 +80,7 @@
                 <li><hr class="dropdown-divider"></li>
                 {% for c in all_companies_with_stock %}
                   <li>
-                    <a id="{{ c.registration_number }}" class="dropdown-item" href="#">{{ c.full_name }}</a>
+                    <a id="{{ c.registration_number }}" class="dropdown-item" href="#">{{ c.display_name }}</a>
                   </li>
                 {% endfor %}
               </ul>

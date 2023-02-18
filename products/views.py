@@ -3,21 +3,25 @@ from django.shortcuts import render, get_object_or_404, reverse
 from django.http import JsonResponse, HttpResponseRedirect
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
+
 # PDF imports
 from django.http import FileResponse
 import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import inch, mm
 from reportlab.lib.pagesizes import letter, A4
+
 # Additional for barcodes
 from reportlab.graphics.barcode import code39, code128, code93
 from reportlab.graphics.barcode import eanbc, qr, usps
 from reportlab.graphics import renderPDF
 from reportlab.graphics.shapes import Drawing
+
 # Model imports
 from .models import Product, Category, SubCategory, HandlingUnit, HandlingUnitMovement
 from companies.models import Company
 from warehouses.models import Warehouse
+
 # Form imports
 from .forms import ProductForm, CategoryForm, SubCategoryForm
 
@@ -311,8 +315,8 @@ def all_handling_units(request):
 
     handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("company").order_by("product").order_by("release_date")
     handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("company").order_by("product").order_by("release_date")
-    products = Product.objects.all()
-    companies = Company.objects.all()
+    products = Product.objects.all().order_by("display_name")
+    companies = Company.objects.all().order_by("display_name")
 
     def is_ajax(request):
         return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'

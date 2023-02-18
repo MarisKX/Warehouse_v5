@@ -8,6 +8,7 @@ from companies.models import Company
 from django.shortcuts import get_object_or_404
 from invoices.models import Invoice, WorkOrder  # RetailSale, ConstructionInvoice
 from .models import AppSettings
+from .today_calculation import today_calc
 
 
 def extras(request):
@@ -46,8 +47,9 @@ def extras(request):
         else:
             today = last_action_date + timedelta(days=1)
             actions_left = actions_per_day
-            while today.weekday() == 5 or today.weekday() == 6:
-                today = today + timedelta(days=1)
+        while today.weekday() == 5 or today.weekday() == 6:
+            today = today + timedelta(days=1)
+
         return {
             'last_action_date': last_action_date,
             'actions_left': actions_left,

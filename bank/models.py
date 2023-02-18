@@ -3,6 +3,8 @@ from django.db.models import Sum
 from companies.models import Company
 from citizens.models import Citizen
 
+from home.today_calculation import today_calc
+
 # Create your models here.
 
 
@@ -36,6 +38,7 @@ class BankAccount(models.Model):
 
 class BankAccountEntry(models.Model):
     bank_account = models.ForeignKey('BankAccount', null=False, blank=False, on_delete=models.CASCADE, related_name='bank_account_entry')
+    date = models.DateField(auto_now_add=False)
     description = models.CharField(max_length=254, blank=True, null=True)
     amount_plus = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False, default=0.00)
     amount_minus = models.DecimalField(max_digits=10, decimal_places=2, blank=False, null=False, default=0.00)
@@ -46,6 +49,7 @@ class BankAccountEntry(models.Model):
         Override the original save method to set the lineitem total
         and update the order total.
         """
+        self.date = today_calc()
         self.amount_minus = self.amount_minus * -1
         self.saldo = float(self.amount_plus) + float(self.amount_minus)
         super().save(*args, **kwargs)

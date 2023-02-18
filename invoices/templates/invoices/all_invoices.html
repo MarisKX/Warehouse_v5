@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}All Invoices{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h4 class="my-5 mx-5">All Invoices</h4>  
+    </div>
+    <div class="row">
+        <form method="GET" action="{% url 'all_invoices' %}">
+            <div class="row">
+                <div class="col-2 offset-3">
+                    <h6 class="mt-4 ms-3">Suplier:</h6>
+                    <select class="select category-search-list" name="suplier">
+                        <option value="">Select All</option>
+                        {% for c in all_companies %}
+                            <option value="{{ c.registration_number }}">{{ c.display_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-2">
+                    <h6 class="mt-4 ms-3">Customer:</h6>
+                    <select class="select subcategory-search-list" data-mdb-visible-options="6" name="customer">
+                        <option value="0">Select All</option>
+                        {% for c in all_companies %}
+                            <option value="{{ c.registration_number }}">{{ c.display_name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-1">
+                    <h6 class="mt-4 ms-3">Month:</h6>
+                    <select class="select subcategory-search-list" data-mdb-visible-options="6" name="month">
+                        <option value="0">Select All</option>
+                        {% for m in years_and_months %}
+                            <option class="month-select" value="{{ m.date.month }}">{{ m.date.month }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-1">
+                    <h6 class="mt-4 ms-3">Year:</h6>
+                    <select class="select subcategory-search-list" data-mdb-visible-options="6" name="year">
+                        <option value="0">Select All</option>
+                        {% for y in years_and_months %}
+                            <option class="year-select" value="{{ y.date.year }}">{{ y.date.year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-2 pt-5">
+                    <button type="submit" class="btn btn-secondary bg-green">
+                        Filter
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-6 offset-md-3 pb-5 pt-5">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Nr</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Suplier</th>
+                    <th scope="col">Suplier Warehouse</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Customer Warehouse</th>
+                    <th scope="col">Pay Date</th>
+                    <th scope="col">Paid</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">BTW</th>
+                    <th scope="col">Total w BTW</th>
+                    <th scope="col">PDF</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for invoice in all_invoices %}
+                    <tr>
+                        <td class="pointer" data-mdb-toggle="tooltip" title="Invoice Details">{{ invoice.invoice_number }}</td>
+                        <td>{{ invoice.date }}</td>
+                        <td class="pointer" data-mdb-toggle="tooltip" title="Company Details">{{ invoice.suplier.display_name }}</td>
+                        <td>{{ invoice.suplier_warehouse.display_name }}</td>
+                        <td class="pointer" data-mdb-toggle="tooltip" title="Company Details">{{ invoice.customer.display_name }}</td>
+                        <td>{{ invoice.customer_warehouse.display_name }}</td>
+                        {% if invoice.payment_term < today %}
+                            <td class="text-red">{{ invoice.payment_term }}</td>
+                        {% elif invoice.payment_term == today %}
+                            <td class="text-orange">{{ invoice.payment_term }}</td>
+                        {% else %}
+                            <td>{{ invoice.payment_term }}</td>
+                        {% endif %}
+                        {% if invoice.invoice_paid_confirmed == True %}
+                            <td><i class="text-green fa-solid fa-circle-check"></i></td>
+                        {% else %}
+                            <td><i class="text-red fa-sharp fa-solid fa-circle-xmark"></i></td>
+                        {% endif %}
+                        <td>{{ invoice.amount_total }} Eur</td>
+                        <td>{{ invoice.btw_total }} Eur</td>
+                        <td>{{ invoice.amount_total_with_btw }} Eur</td>
+                        <td class="pointer"><i class="fa-light fa-file-pdf"></i></td>
+                    </tr>
+                {% endfor %}
+              </tbody>
+        </table>
+    </div>
+    
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}
+    <!-- Custom Scripts -->
+    <script src="{% static 'js/yearAndMonthSearchHandler.js' %}"></script>
+    
+
+{% endblock %}

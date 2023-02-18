@@ -6,6 +6,7 @@ from .models import BankAccount, BankAccountEntry
 
 class BankAccountEntryAdmin(admin.TabularInline):
     model = BankAccountEntry
+    readonly_fields = ()
 
 
 class BankAccountAdmin(admin.ModelAdmin):
