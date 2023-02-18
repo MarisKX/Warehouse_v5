@@ -18,7 +18,7 @@ class BankAccountAdmin(admin.ModelAdmin):
         'bank_account_saldo'
     )
 
-    ordering = ('bank_account_number',)
+    ordering = ('bank_account_owner_pp', 'bank_account_owner_com', )
 
 
 admin.site.register(BankAccount, BankAccountAdmin)

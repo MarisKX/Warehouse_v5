@@ -29,12 +29,18 @@ def letter_to_number(letters):
         "y": 9,
         "z": 9,
     }
-    first_letter = letters[0]
+    letter1 = letters[0]
     number1 = let_dict[first_letter]
-    second_letter = letters[1]
+
+    letter2 = letters[1]
     number2 = let_dict[second_letter]
-    third_letter = letters[1]
+
+    letter3 = letters[1]
     number3 = let_dict[third_letter]
-    number = f"" + str(number1) + str(number2) + str(number3) + ""
+
+    letter4 = letters[1]
+    number4 = let_dict[third_letter]
+
+    number = f"" + str(number1) + str(number2) + str(number3) + str(number4) + ""
     end_number = int(number)
     return end_number

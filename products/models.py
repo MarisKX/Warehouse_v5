@@ -163,9 +163,9 @@ class HandlingUnit(models.Model):
 
     def save(self, *args, **kwargs):
         if self.hu == "0":
-            hu_count = HandlingUnit.objects.filter(manufacturer=self.manufacturer, location=self.location).count()
+            hu_count = HandlingUnit.objects.filter(manufacturer=self.manufacturer).count()
             hu_pre_code = get_object_or_404(Warehouse, name=self.location).warehouse_code
-            self.hu = f"" + hu_pre_code + str(hu_count + 1).zfill(15)
+            self.hu = f"" + hu_pre_code + str(hu_count + 1).zfill(14)
         product_tht_int = get_object_or_404(Product, name=self.product).expiry_end_date_terms
         product_tht_let = get_object_or_404(Product, name=self.product).expiry_end_date_cat
         if product_tht_let == "1":

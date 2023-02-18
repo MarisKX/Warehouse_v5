@@ -13,7 +13,7 @@ class Company(models.Model):
     class Meta:
         verbose_name_plural = 'Companies'
 
-    owner = models.OneToOneField(Citizen, on_delete=models.CASCADE)
+    owner = models.ForeignKey(Citizen, on_delete=models.CASCADE)
     name = models.CharField(max_length=254, blank=True, null=True)
     display_name = models.CharField(max_length=254, blank=True)
     warehouse = models.BooleanField(default=False)

@@ -54,7 +54,7 @@ class WorkOrderAdmin(admin.ModelAdmin):
 
     )
 
-    ordering = ('work_order_number',)
+    ordering = ('date',)
 
 
 class InvoiceItemAdmin(admin.TabularInline):
@@ -99,7 +99,7 @@ class InvoiceAdmin(admin.ModelAdmin):
         'amount_total_with_btw',
     )
 
-    ordering = ('invoice_number',)
+    ordering = ('date',)
 
 
 admin.site.register(WorkOrder, WorkOrderAdmin)

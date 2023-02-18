@@ -30,8 +30,6 @@ def extras(request):
         last_dates.sort()
         last_action_date_str = last_dates[-1]
         last_action_date = datetime.datetime.strptime(last_action_date_str, '%Y-%m-%d').date()
-        print(last_action_date)
-        print(type(last_action_date))
 
         invoice_count = Invoice.objects.filter(date=last_action_date).count() or 0
         workorder_count = WorkOrder.objects.filter(date=last_action_date).count() or 0
