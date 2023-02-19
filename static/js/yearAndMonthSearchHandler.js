@@ -1,15 +1,5 @@
 $(document).ready(function(){
-    $('.year-select').each(function (index) { 
-        if (index > 0) { 
-            $(this).remove(); 
-        } 
-    });
-    $('.month-select').each(function (index) { 
-        if (index > 0) { 
-            $(this).remove(); 
-        }
-    });
-    $('.month-select').each(function (index) { 
+    $('.month-select').each(function () { 
         let numbToMonth = {
             1: "January",
             2: "February",
@@ -24,8 +14,8 @@ $(document).ready(function(){
             11: "November",
             12: "December",
         };
-        monthInNumber = $('.month-select').val()
+        monthInNumber = $(this).val()
         let month = numbToMonth[monthInNumber];
-        $('.month-select').text(month)
+        $(this).text(month)
     });
 })

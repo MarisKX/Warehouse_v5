@@ -38,18 +38,15 @@
                     <h6 class="mt-4 ms-3">Month:</h6>
                     <select class="select subcategory-search-list" data-mdb-visible-options="6" name="month">
                         <option value="">Select All</option>
-                        {% for m in years_and_months %}
-                            <option class="month-select" value="{{ m.date.month }}">{{ m.date.month }}</option>
-                        {% endfor %}
+                        <option class="month-select" value="1"></option>
+                        <option class="month-select" value="2"></option>
                     </select>
                 </div>
                 <div class="col-1">
                     <h6 class="mt-4 ms-3">Year:</h6>
                     <select class="select subcategory-search-list" data-mdb-visible-options="6" name="year">
                         <option value="">Select All</option>
-                        {% for y in years_and_months %}
-                            <option class="year-select" value="{{ y.date.year }}">{{ y.date.year }}</option>
-                        {% endfor %}
+                        <option class="year-select" value="1800">1800</option>
                     </select>
                 </div>
                 <div class="col-2 pt-5">

@@ -78,7 +78,6 @@ def invoice_details(request, invoice_number):
     invoice = get_object_or_404(Invoice, invoice_number=invoice_number)
     customer_bank_account = get_object_or_404(BankAccount, bank_account_owner_com=invoice.customer)
     invoice_items = InvoiceItem.objects.filter(invoice=invoice)
-    print(invoice_items)
 
     try:
         payment_info = BankAccountEntry.objects.get(
