@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}Invoice Details | {{ invoice.invoice_number }}{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h4 class="my-5 mx-5">{{ invoice.invoice_number }}</h4> 
+        <div class="row">
+            <div class="col-md-3 offset-md-3 pb-3 pt-5">
+                <div class="row pt-3">
+                    <div class="col-5 offset-1 fs-4">Invoice Number:</div>
+                    <div class="col-6 fw-bold fs-4">{{ invoice.invoice_number }}</div>
+                </div>
+                <div class="row pt-4">
+                    <div class="col-6">Suplier:</div>
+                    <div class="col-6 fw-bold">{{ invoice.suplier.display_name }}</div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6">Delivery From:</div>
+                    <div class="col-6 fw-bold">{{ invoice.suplier_warehouse.display_name }}</div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6"></div>
+                    {% if invoice.suplier_warehouse.street_adress_1 %}
+                        <div class="col-6 fw-bold">{{ invoice.suplier_warehouse.street_adress_1 }}, {{ invoice.suplier_warehouse.street_adress_2 }}</div>
+                    {% else %}
+                        <div class="col-6 fw-bold">{{ invoice.suplier_warehouse.street_adress_2 }}</div>
+                    {% endif %}
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6"></div>
+                    <div class="col-6 fw-bold">{{ invoice.suplier_warehouse.city }}, {{ invoice.suplier_warehouse.post_code }}</div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6"></div>
+                    <div class="col-6 fw-bold">{{ invoice.suplier_warehouse.country }}</div>
+                </div>
+            </div>
+            <div class="col-md-3 pb-3 pt-5">
+                <div class="row pt-3">
+                    <div class="col-5 offset-1 fs-4">Invoice Date:</div>
+                    <div class="col-6 fw-bold fs-4">{{ invoice.date }}</div>
+                </div>
+                <div class="row pt-4">
+                    <div class="col-6">Customer:</div>
+                    <div class="col-6 fw-bold">{{ invoice.customer.display_name }}</div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6">Delivery To:</div>
+                    <div class="col-6 fw-bold">{{ invoice.customer_warehouse.display_name }}</div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6"></div>
+                    {% if invoice.suplier_warehouse.street_adress_1 %}
+                        <div class="col-6 fw-bold">{{ invoice.customer_warehouse.street_adress_1 }}, {{ invoice.customer_warehouse.street_adress_2 }}</div>
+                    {% else %}
+                        <div class="col-6 fw-bold">{{ invoice.customer_warehouse.street_adress_2 }}</div>
+                    {% endif %}
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6"></div>
+                    <div class="col-6 fw-bold">{{ invoice.customer_warehouse.city }}, {{ invoice.customer_warehouse.post_code }}</div>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6"></div>
+                    <div class="col-6 fw-bold">{{ invoice.customer_warehouse.country }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 offset-md-3 pb-5 pt-3">
+                Payment due date: {{ invoice.payment_term }}
+            </div>
+            <div class="col-md-3 pb-5 pt-3">
+                {% if payment_info == ""%}
+                    {% if today > invoice.payment_term %}
+                        <span class="text-red fw-bold">Payment status: NOT PAID</span>
+                    {% else %}
+                        <span class="fw-bold">Payment status: NOT PAID</span>
+                    {% endif %}
+                {% else %}
+                    Payment status: Invoice paid on - {{ payment_info.date }} -
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 offset-md-3 pb-5 pt-3">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nr</th>
+                            <th scope="col">Product</th>
+                            <th scope="col">Qty</th>
+                            <th scope="col">U/P</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Total</th>
+                            <th scope="col">BTW</th>
+                            <th scope="col">Total w BTW</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for item in invoice_items %}
+                            <tr>
+                                <td class="number-of-item"></td>
+                                <td
+                                    class="pointer"
+                                    data-mdb-toggle="tooltip"
+                                    title="Product Details"
+                                    onclick="window.location='{% url 'product_details' item.product.code %}';">{{ item.product.display_name }}</td>
+                                {% if item.quantity_in_units != "0" %}
+                                    <td>{{ item.quantity_in_units }}</td>
+                                    <td>Units</td>
+                                {% else %}
+                                    <td>{{ item.quantity_in_packages }}</td>
+                                    <td>Packages</td>
+                                {% endif %}
+                                <td>{{ item.price }} Eur</td>
+                                <td>{{ item.lineitem_total }} Eur</td>
+                                <td>{{ item.btw }} Eur</td>
+                                <td>{{ item.lineitem_total_with_btw }} Eur</td>
+                            </tr>
+                        {% endfor %}
+                      </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-md-3 offset-md-7 pb-5 pt-3">
+                    <div class="row">
+                        <div class="col-3">
+                            Total:
+                        </div>
+                        <div class="col-2">
+                            <span class="float-end">{{ invoice.amount_total }} Eur</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            BTW (21%):
+                        </div>
+                        <div class="col-2">
+                            <span class="float-end">{{ invoice.btw_total }} Eur</span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                            Total:
+                        </div>
+                        <div class="col-2">
+                            <span class="float-end">{{ invoice.amount_total_with_btw }} Eur</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}
+    <!-- Custom Scripts -->
+    <script src="{% static 'js/invoiceItemCounter.js' %}"></script>
+        
+{% endblock %}

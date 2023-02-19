@@ -1,7 +1,8 @@
 # General imports
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 # Time imports
 from datetime import *
@@ -13,6 +14,7 @@ from dateutil.relativedelta import *
 # Model imports
 from .models import Invoice, InvoiceItem
 from companies.models import Company
+from bank.models import BankAccountEntry, BankAccount
 
 
 # All Invoices View
@@ -66,3 +68,30 @@ def all_invoices(request):
     }
 
     return render(request, 'invoices/all_invoices.html', context)
+
+
+# Product Details View
+@login_required
+def invoice_details(request, invoice_number):
+    """ A view to return the invoice detail page """
+
+    invoice = get_object_or_404(Invoice, invoice_number=invoice_number)
+    customer_bank_account = get_object_or_404(BankAccount, bank_account_owner_com=invoice.customer)
+    invoice_items = InvoiceItem.objects.filter(invoice=invoice)
+    print(invoice_items)
+
+    try:
+        payment_info = BankAccountEntry.objects.get(
+            bank_account=customer_bank_account,
+            description=invoice.invoice_number,
+        )
+    except BankAccountEntry.DoesNotExist:
+        payment_info = ""
+
+    context = {
+        'invoice': invoice,
+        'payment_info': payment_info,
+        'invoice_items': invoice_items,
+    }
+
+    return render(request, 'invoices/invoice_details.html', context)

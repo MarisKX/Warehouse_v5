@@ -82,6 +82,7 @@ class HandlingUnitAdmin(admin.ModelAdmin):
         'hu',
         'manufacturer',
         'company',
+        'location',
         'product',
         'qty',
         'qty_units',
