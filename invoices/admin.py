@@ -5,6 +5,8 @@ from .models import (
     WorkOrderItemProduction,
     Invoice,
     InvoiceItem,
+    TransferOrder,
+    TransferOrderItem,
     )
 
 
@@ -102,5 +104,29 @@ class InvoiceAdmin(admin.ModelAdmin):
     ordering = ('date',)
 
 
+class TransferOrderItemAdmin(admin.TabularInline):
+    model = TransferOrderItem
+    list_display = (
+        'product',
+        'quantity_in_units',
+    )
+
+
+class TransferOrderAdmin(admin.ModelAdmin):
+    inlines = (TransferOrderItemAdmin, )
+    readonly_fields = (
+        'to_number',
+    )
+    list_display = (
+        'to_number',
+        'company',
+        'warehouse_from',
+        'warehouse_to',
+        'date',
+    )
+    ordering = ('date', 'to_number',)
+
+
 admin.site.register(WorkOrder, WorkOrderAdmin)
 admin.site.register(Invoice, InvoiceAdmin)
+admin.site.register(TransferOrder, TransferOrderAdmin)

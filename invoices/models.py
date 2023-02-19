@@ -157,3 +157,32 @@ class InvoiceItem(models.Model):
         self.btw = (self.lineitem_total / 100) * 21
         self.lineitem_total_with_btw = self.lineitem_total + self.btw
         super().save(*args, **kwargs)
+
+
+class TransferOrder(models.Model):
+    to_number = models.CharField(max_length=10, default='TO00001')
+    company = models.ForeignKey(
+        Company, on_delete=models.CASCADE,
+        related_name="company_transfer_order")
+    warehouse_from = models.ForeignKey(
+        Warehouse, on_delete=models.CASCADE,
+        related_name="transfer_order_from_warehouse")
+    warehouse_to = models.ForeignKey(
+        Warehouse, on_delete=models.CASCADE,
+        related_name="transfer_order_to_warehouse")
+    date = models.DateField(auto_now_add=False)
+
+    def __str__(self):
+        return self.to_number
+
+
+class TransferOrderItem(models.Model):
+    to_number = models.ForeignKey(
+        TransferOrder, null=False, blank=False,
+        on_delete=models.CASCADE,
+        related_name='product_transfer_order_from')
+    product = models.ForeignKey(
+        Product, null=False, blank=False,
+        on_delete=models.CASCADE,
+        related_name='product_with_to')
+    quantity_in_units = models.IntegerField(null=False, blank=False, default=0)
