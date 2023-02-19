@@ -87,9 +87,9 @@
                         <td>{{ invoice.suplier_warehouse.display_name }}</td>
                         <td class="pointer" data-mdb-toggle="tooltip" title="Company Details">{{ invoice.customer.display_name }}</td>
                         <td>{{ invoice.customer_warehouse.display_name }}</td>
-                        {% if invoice.payment_term < today %}
+                        {% if invoice.payment_term < today and invoice.invoice_paid_confirmed == False %}
                             <td class="text-red">{{ invoice.payment_term }}</td>
-                        {% elif invoice.payment_term == today %}
+                        {% elif invoice.payment_term == today and invoice.invoice_paid_confirmed == False %}
                             <td class="text-orange">{{ invoice.payment_term }}</td>
                         {% else %}
                             <td>{{ invoice.payment_term }}</td>

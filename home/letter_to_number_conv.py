@@ -30,16 +30,16 @@ def letter_to_number(letters):
         "z": 9,
     }
     letter1 = letters[0]
-    number1 = let_dict[first_letter]
+    number1 = let_dict[letter1]
 
     letter2 = letters[1]
-    number2 = let_dict[second_letter]
+    number2 = let_dict[letter2]
 
-    letter3 = letters[1]
-    number3 = let_dict[third_letter]
+    letter3 = letters[2]
+    number3 = let_dict[letter3]
 
-    letter4 = letters[1]
-    number4 = let_dict[third_letter]
+    letter4 = letters[3]
+    number4 = let_dict[letter4]
 
     number = f"" + str(number1) + str(number2) + str(number3) + str(number4) + ""
     end_number = int(number)
