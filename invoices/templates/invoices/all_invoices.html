@@ -28,7 +28,7 @@
                 <div class="col-2">
                     <h6 class="mt-4 ms-3">Customer:</h6>
                     <select class="select subcategory-search-list" data-mdb-visible-options="6" name="customer">
-                        <option value="0">Select All</option>
+                        <option value="">Select All</option>
                         {% for c in all_companies %}
                             <option value="{{ c.registration_number }}">{{ c.display_name}}</option>
                         {% endfor %}
@@ -37,7 +37,7 @@
                 <div class="col-1">
                     <h6 class="mt-4 ms-3">Month:</h6>
                     <select class="select subcategory-search-list" data-mdb-visible-options="6" name="month">
-                        <option value="0">Select All</option>
+                        <option value="">Select All</option>
                         {% for m in years_and_months %}
                             <option class="month-select" value="{{ m.date.month }}">{{ m.date.month }}</option>
                         {% endfor %}
@@ -46,7 +46,7 @@
                 <div class="col-1">
                     <h6 class="mt-4 ms-3">Year:</h6>
                     <select class="select subcategory-search-list" data-mdb-visible-options="6" name="year">
-                        <option value="0">Select All</option>
+                        <option value="">Select All</option>
                         {% for y in years_and_months %}
                             <option class="year-select" value="{{ y.date.year }}">{{ y.date.year }}</option>
                         {% endfor %}
@@ -99,12 +99,26 @@
                         {% else %}
                             <td><i class="text-red fa-sharp fa-solid fa-circle-xmark"></i></td>
                         {% endif %}
-                        <td>{{ invoice.amount_total }} Eur</td>
-                        <td>{{ invoice.btw_total }} Eur</td>
-                        <td>{{ invoice.amount_total_with_btw }} Eur</td>
+                        <td class="invoice-amount-total">{{ invoice.amount_total }} Eur</td>
+                        <td class="invoice-btw-total">{{ invoice.btw_total }} Eur</td>
+                        <td class="invoice-amount-total_with_btw">{{ invoice.amount_total_with_btw }} Eur</td>
                         <td class="pointer"><i class="fa-light fa-file-pdf"></i></td>
                     </tr>
                 {% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td class="fw-bold">Invoices found:</td>
+                    <td  class="fw-bold" id="invoice-count"></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="fw-bold">Total:</td>
+                    <td class="fw-bold"><span id="invoice-amount-total">0.00</span> Eur</td>
+                    <td class="fw-bold"><span id="invoice-btw_total">0.00</span> Eur</td>
+                    <td class="fw-bold"><span id="invoice-amount_total_with_btw">0.00</span> Eur</td>
+                    <td></td>
+                </tr>
               </tbody>
         </table>
     </div>
@@ -115,6 +129,7 @@
     {{ block.super }}
     <!-- Custom Scripts -->
     <script src="{% static 'js/yearAndMonthSearchHandler.js' %}"></script>
+    <script src="{% static 'js/invoiceTotalCalc.js' %}"></script>
     
 
 {% endblock %}

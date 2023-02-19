@@ -1,6 +1,7 @@
 # General imports
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 # Time imports
 from datetime import *
@@ -24,28 +25,39 @@ def all_invoices(request):
 
     years_and_months = Invoice.objects.values('date')
 
-    if request.GET:
-        if 'category' and 'subcategory' in request.GET:
-            query_filter_category = request.GET['category']
-            query_filter_subcategory = request.GET['subcategory']
-            if query_filter_subcategory != "":
-                queries = Q(
-                    category_id=query_filter_category) & Q(
-                    subcategory_id=query_filter_subcategory)
-                products = products.filter(queries)
-            else:
-                queries = Q(
-                    category__id__icontains=query_filter_category)
-                products = products.filter(queries)
+    search_by_suplier = None
+    search_by_customer = None
+    search_by_year = None
 
-        if 'category' in request.GET:
-            query_filter_category = request.GET['category']
-            if query_filter_category != "":
-                queries = Q(
-                    category__id__icontains=query_filter_category)
-                products = products.filter(queries)
-            else:
-                Product.objects.all().order_by("display_name")
+    if request.GET:
+        if 'suplier' in request.GET:
+            search_by_suplier = request.GET['suplier']
+        if 'customer' in request.GET:
+            search_by_customer = request.GET['customer']
+        if 'year' in request.GET:
+            search_by_year = request.GET['year']
+        if 'month' in request.GET:
+            search_by_month = request.GET['month']
+        if search_by_month != "":
+            queries = Q(
+                    suplier__registration_number__icontains=search_by_suplier
+                ) & Q(
+                    customer__registration_number__icontains=search_by_customer
+                ) & Q(
+                    date__year__icontains=search_by_year
+                ) & Q(
+                    date__month=search_by_month
+                )
+            all_invoices = all_invoices.filter(queries)
+        else:
+            queries = Q(
+                    suplier__registration_number__icontains=search_by_suplier
+                ) & Q(
+                    customer__registration_number__icontains=search_by_customer
+                ) & Q(
+                    date__year__icontains=search_by_year
+                )
+            all_invoices = all_invoices.filter(queries)
 
     context = {
         'all_invoices': all_invoices,
