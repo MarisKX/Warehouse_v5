@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from companies.models import Company
 from warehouses.models import Warehouse
 from products.models import Product, HandlingUnit
+from citizens.models import Citizen
 
 
 # WorkOrders and lineitems for them
@@ -159,6 +160,7 @@ class InvoiceItem(models.Model):
         super().save(*args, **kwargs)
 
 
+# Transfer Orders
 class TransferOrder(models.Model):
     to_number = models.CharField(max_length=10, default='TO00001')
     company = models.ForeignKey(
@@ -186,3 +188,64 @@ class TransferOrderItem(models.Model):
         on_delete=models.CASCADE,
         related_name='product_with_to')
     quantity_in_units = models.IntegerField(null=False, blank=False, default=0)
+
+
+# Retail Sales
+class RetailSale(models.Model):
+    retail_sale_number = models.CharField(max_length=12, default='RT1')
+    retailer = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="retailer")
+    retailer_warehouse = models.ForeignKey(
+        Warehouse, on_delete=models.CASCADE, related_name="retailer_warehouse")
+    customer = models.ForeignKey(
+        Citizen, on_delete=models.CASCADE, related_name="customer")
+    date = models.DateField(auto_now_add=False)
+    retail_sale_paid = models.BooleanField()
+    retail_sale_paid_confirmed = models.BooleanField()
+    amount_total = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+    btw_total = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+    amount_total_with_btw = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+
+    def update_retail_sale_total(self):
+        """
+        Update grand total each time a line item is added,
+        accounting for delivery costs.
+        """
+        self.amount_total = self.retailitems.aggregate(
+            Sum('retailitem_total'))['retailitem_total__sum'] or 0
+        self.btw_total = (self.amount_total / 100) * 21
+        self.amount_total_with_btw = self.amount_total + self.btw_total
+        super().save()
+
+    def __str__(self):
+        return self.retail_sale_number
+
+
+class RetailSaleItem(models.Model):
+    retail_sale = models.ForeignKey(
+        RetailSale, null=False, blank=False,
+        on_delete=models.CASCADE, related_name='retailitems')
+    product = models.ForeignKey(
+        Product, null=False, blank=False, on_delete=models.CASCADE)
+    quantity = models.IntegerField(null=False, blank=False, default=0)
+    price = models.DecimalField(
+        max_digits=6, decimal_places=2, default=0.00, blank=False)
+    retailitem_total = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True)
+    btw = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+    retailitem_total_with_btw = models.DecimalField(
+        max_digits=6, decimal_places=2, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        """
+        Override the original save method to set the lineitem total
+        and update the order total.
+        """
+        self.retailitem_total = self.price * self.quantity
+        self.btw = (self.retailitem_total / 100) * 21
+        self.retailitem_total_with_btw = self.retailitem_total + self.btw
+        super().save(*args, **kwargs)

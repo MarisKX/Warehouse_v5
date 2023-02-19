@@ -14,6 +14,7 @@ class AppSettingsAdmin(admin.ModelAdmin):
         'valid_till',
         'no_iin_level',
         'enviroment_tax_base',
+        'btw',
     )
 
     ordering = ('settings_number',)

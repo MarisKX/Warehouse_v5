@@ -7,9 +7,12 @@ from .models import (
     InvoiceItem,
     TransferOrder,
     TransferOrderItem,
+    RetailSale,
+    RetailSaleItem,
     )
 
 
+# Workorders
 class WorkOrderItemRawMatAdmin(admin.TabularInline):
     model = WorkOrderItemRawMat
     readonly_fields = (
@@ -59,6 +62,7 @@ class WorkOrderAdmin(admin.ModelAdmin):
     ordering = ('date',)
 
 
+# General Invoices
 class InvoiceItemAdmin(admin.TabularInline):
     model = InvoiceItem
     readonly_fields = (
@@ -104,6 +108,7 @@ class InvoiceAdmin(admin.ModelAdmin):
     ordering = ('date',)
 
 
+# Transfer Orders
 class TransferOrderItemAdmin(admin.TabularInline):
     model = TransferOrderItem
     list_display = (
@@ -127,6 +132,33 @@ class TransferOrderAdmin(admin.ModelAdmin):
     ordering = ('date', 'to_number',)
 
 
+# Retail Sales
+class RetailSaleItemAdmin(admin.TabularInline):
+    model = RetailSaleItem
+    readonly_fields = ('retailitem_total', 'btw', 'retailitem_total_with_btw',)
+
+
+class RetailSaleAdmin(admin.ModelAdmin):
+    inlines = (RetailSaleItemAdmin,)
+    readonly_fields = (
+        'retail_sale_number',
+        'amount_total',
+        'btw_total',
+        'amount_total_with_btw',
+    )
+    list_display = (
+        'retail_sale_number',
+        'retailer',
+        'customer',
+        'date',
+        'amount_total',
+        'btw_total',
+        'amount_total_with_btw',
+    )
+    ordering = ('date', 'retail_sale_number',)
+
+
 admin.site.register(WorkOrder, WorkOrderAdmin)
 admin.site.register(Invoice, InvoiceAdmin)
 admin.site.register(TransferOrder, TransferOrderAdmin)
+admin.site.register(RetailSale, RetailSaleAdmin)

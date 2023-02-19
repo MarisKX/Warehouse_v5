@@ -24,6 +24,8 @@ class AppSettings(models.Model):
         max_digits=4, decimal_places=2, blank=False, null=False)
     enviroment_tax_base = models.DecimalField(
         max_digits=8, decimal_places=2, blank=False, null=False)
+    btw = models.DecimalField(
+        max_digits=8, decimal_places=2, blank=False, null=False)
     vsaoi_dd = models.DecimalField(
         max_digits=4, decimal_places=2, blank=False, null=False)
     valid = models.BooleanField()

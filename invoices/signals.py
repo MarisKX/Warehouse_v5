@@ -19,7 +19,9 @@ from .models import (
     Invoice,
     InvoiceItem,
     TransferOrder,
-    TransferOrderItem
+    TransferOrderItem,
+    RetailSale,
+    RetailSaleItem,
 )
 from companies.models import Company
 
@@ -602,7 +604,7 @@ def grab_items_from_hu_on_transfer_order_save(
                 hu_made.location = instance.to_number.warehouse_to
                 hu_made.active = False
                 hu_made.save()
-                
+
                 HandlingUnitMovement.objects.create(
                     hu=hu_made,
                     date=instance.to_number.date,
@@ -653,6 +655,138 @@ def grab_items_from_hu_on_transfer_order_save(
                     from_hu=hu_with_product.hu,
                     to_hu=hu_with_product.hu,
                     qty=instance.quantity_in_units,
+                )
+
+                units_to_use = leftover
+
+
+# Retail Sales
+@receiver(post_save, sender=RetailSaleItem)
+def update_retail_sale_on_save(sender, instance, created, **kwargs):
+    """
+    Update order total on lineitem update/create
+    """
+    instance.retail_sale.update_retail_sale_total()
+
+
+@receiver(post_save, sender=RetailSaleItem)
+def grab_items_from_hu_on_retail_sale_save(
+        sender, instance, created, **kwargs):
+    """
+    Update order total on lineitem update/create
+    """
+    if created:
+        units_to_use = instance.quantity
+        while units_to_use > 0:
+            hu_with_product = HandlingUnit.objects.filter(
+                company=instance.retail_sale.retailer,
+                location=instance.retail_sale.retailer_warehouse,
+                product=instance.product,
+                qty_units='0',
+                active=True
+                ).order_by('release_date')[0]
+            if hu_with_product.qty > instance.quantity:
+                hu_with_product.qty = hu_with_product.qty - instance.quantity
+                hu_with_product.save()
+
+                HandlingUnit.objects.create(
+                    manufacturer=hu_with_product.manufacturer,
+                    company=instance.retail_sale.retailer,
+                    location=instance.retail_sale.retailer_warehouse,
+                    product=instance.product,
+                    qty=instance.quantity,
+                    qty_units="0",
+                    batch_nr=hu_with_product.batch_nr,
+                    release_date=hu_with_product.release_date,
+                )
+
+                hu_made = HandlingUnit.objects.filter(
+                    manufacturer=hu_with_product.manufacturer,
+                    company=instance.retail_sale.retailer,
+                    location=instance.retail_sale.retailer_warehouse,
+                    product=instance.product,
+                    qty=instance.quantity,
+                    qty_units="0",
+                    batch_nr=hu_with_product.batch_nr,
+                    release_date=hu_with_product.release_date,
+                ).last()
+
+                HandlingUnitMovement.objects.create(
+                    hu=hu_with_product,
+                    date=instance.retail_sale.date,
+                    doc_nr=instance.retail_sale.retail_sale_number,
+                    from_location=instance.retail_sale.retailer_warehouse,
+                    to_location=instance.retail_sale.retailer_warehouse,
+                    from_hu=hu_with_product.hu,
+                    to_hu=hu_made,
+                    qty=instance.quantity,
+                    )
+
+                HandlingUnitMovement.objects.create(
+                    hu=hu_made,
+                    date=instance.retail_sale.date,
+                    doc_nr=instance.retail_sale.retail_sale_number,
+                    from_location=instance.retail_sale.retailer_warehouse,
+                    to_location=instance.retail_sale.retailer_warehouse,
+                    from_hu=hu_with_product.hu,
+                    to_hu=hu_made,
+                    qty=instance.quantity,
+                )
+
+                hu_made.location = instance.retail_sale.retailer_warehouse,
+                hu_made.active = False
+                hu_made.save()
+
+                HandlingUnitMovement.objects.create(
+                    hu=hu_made,
+                    date=instance.retail_sale.date,
+                    doc_nr=instance.retail_sale.retail_sale_number,
+                    from_location=instance.retail_sale.retailer_warehouse,
+                    to_location="Sales",
+                    from_hu=hu_with_product.hu,
+                    to_hu="-",
+                    qty=instance.quantity,
+                )
+
+                units_to_use = 0
+
+            elif hu_with_product.qty == instance.quantity:
+                hu_with_product.qty = hu_with_product.qty - instance.quantity
+
+                hu_with_product.location = instance.retail_sale.retailer_warehouse,
+                hu_with_product.active = False
+                hu_with_product.save()
+
+                HandlingUnitMovement.objects.create(
+                    hu=hu_with_product,
+                    date=instance.retail_sale.date,
+                    doc_nr=instance.retail_sale.retail_sale_number,
+                    from_location=instance.retail_sale.retailer_warehouse,
+                    to_location="Sales",
+                    from_hu=hu_with_product.hu,
+                    to_hu="-",
+                    qty=instance.quantity,
+                )
+
+                units_to_use = 0
+
+            else:
+                leftover = units_to_use - hu_with_product.qty
+                units_from_current_hu = units_to_use - leftover
+
+                hu_with_product.location = instance.retail_sale.retailer_warehouse,
+                hu_with_product.active = False
+                hu_with_product.save()
+
+                HandlingUnitMovement.objects.create(
+                    hu=hu_with_product,
+                    date=instance.retail_sale.date,
+                    doc_nr=instance.retail_sale.retail_sale_number,
+                    from_location=instance.retail_sale.retailer_warehouse,
+                    to_location="Sales",
+                    from_hu=hu_with_product.hu,
+                    to_hu="-",
+                    qty=instance.quantity,
                 )
 
                 units_to_use = leftover
