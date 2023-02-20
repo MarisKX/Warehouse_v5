@@ -114,7 +114,7 @@
                                     data-mdb-toggle="tooltip"
                                     title="Product Details"
                                     onclick="window.location='{% url 'product_details' item.product.code %}';">{{ item.product.display_name }}</td>
-                                {% if item.quantity_in_units != "0" %}
+                                {% if item.quantity_in_units > 0 %}
                                     <td>{{ item.quantity_in_units }}</td>
                                     <td>Units</td>
                                 {% else %}
