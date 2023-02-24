@@ -45,8 +45,14 @@ class WorkOrderItemRawMat(models.Model):
     product = models.ForeignKey(
         Product, null=False, blank=False,
         on_delete=models.CASCADE, related_name='raw_materials')
-    quantity_in_units = models.IntegerField(null=False, blank=False, default=0)
-    quantity_in_packages = models.IntegerField(null=False, blank=False, default=0)
+    qty = models.IntegerField(null=False, blank=False, default=0)
+    qty_in_choices = [
+        ('0', 'Units'),
+        ('1', 'Packages'),
+        ('2', 'Pallets'),
+    ]
+    qty_in = models.CharField(
+        max_length=10, choices=qty_in_choices, default='0')
 
 
 class WorkOrderItemProduction(models.Model):
@@ -56,9 +62,14 @@ class WorkOrderItemProduction(models.Model):
     product = models.ForeignKey(
         Product, null=False, blank=False,
         on_delete=models.CASCADE, related_name='production')
-    quantity_in_single_units = models.IntegerField(null=False, blank=False, default=0)
-    quantity_in_units = models.IntegerField(null=False, blank=False, default=0)
-    quantity_in_packages = models.IntegerField(null=False, blank=False, default=0)
+    qty = models.IntegerField(null=False, blank=False, default=0)
+    qty_in_choices = [
+        ('0', 'Units'),
+        ('1', 'Packages'),
+        ('2', 'Pallets'),
+    ]
+    qty_in = models.CharField(
+        max_length=10, choices=qty_in_choices, default='0')
     enviroment_tax_on_workorder = models.DecimalField(
         max_digits=6, decimal_places=2, default=0.00)
 
@@ -67,19 +78,21 @@ class WorkOrderItemProduction(models.Model):
         Override the original save method to set the lineitem total
         and update the order total.
         """
-        self.enviroment_tax_on_workorder = (
-            self.product.enviroment_tax_amount * self.quantity_in_single_units)
-        if self.product.units_per_package > self.quantity_in_single_units:
-            self.quantity_in_packages = 0
-            self.quantity_in_units = self.quantity_in_single_units
+
+        if self.qty_in == "0":
+            self.enviroment_tax_on_workorder = self.product.enviroment_tax_amount * self.qty
+            if self.product.units_per_package <= self.qty and self.qty % self.product.units_per_package == 0:
+                self.qty_in = '1'
+                self.qty = self.qty / self.product.units_per_package
+                super().save(*args, **kwargs)
+            elif self.product.units_per_package > self.qty:
+                super().save(*args, **kwargs)
+            else:
+                print("Cannot divide in packages AND units")
+                pass
+        elif self.qty_in == "1":
+            self.enviroment_tax_on_workorder = self.product.enviroment_tax_amount * self.qty * self.product.units_per_package
             super().save(*args, **kwargs)
-        elif self.quantity_in_single_units % self.product.units_per_package == 0:
-            self.quantity_in_packages = self.quantity_in_single_units / self.product.units_per_package
-            self.quantity_in_units = 0
-            super().save(*args, **kwargs)
-        else:
-            print("Cannot divide in packages AND units")
-            pass
 
 
 # General Invoices and lineitems for them
@@ -135,8 +148,14 @@ class InvoiceItem(models.Model):
         on_delete=models.CASCADE, related_name='lineitems')
     product = models.ForeignKey(
         Product, null=False, blank=False, on_delete=models.CASCADE)
-    quantity_in_units = models.IntegerField(null=False, blank=False, default=0)
-    quantity_in_packages = models.IntegerField(null=False, blank=False, default=0)
+    qty = models.IntegerField(null=False, blank=False, default=0)
+    qty_in_choices = [
+        ('0', 'Units'),
+        ('1', 'Packages'),
+        ('2', 'Pallets'),
+    ]
+    qty_in = models.CharField(
+        max_length=10, choices=qty_in_choices, default='0')
     price = models.DecimalField(
         max_digits=6, decimal_places=2, default=0.00, blank=False)
     lineitem_total = models.DecimalField(
@@ -151,10 +170,10 @@ class InvoiceItem(models.Model):
         Override the original save method to set the lineitem total
         and update the order total.
         """
-        if self.quantity_in_units > 0:
-            self.lineitem_total = self.price * self.quantity_in_units
+        if self.qty_in == "0":
+            self.lineitem_total = self.price * self.qty
         else:
-            self.lineitem_total = self.price * self.quantity_in_packages
+            self.lineitem_total = self.price * self.qty * self.product.units_per_package
         self.btw = (self.lineitem_total / 100) * 21
         self.lineitem_total_with_btw = self.lineitem_total + self.btw
         super().save(*args, **kwargs)

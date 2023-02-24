@@ -81,6 +81,7 @@ class HandlingUnitAdmin(admin.ModelAdmin):
     list_display = (
         'hu',
         'manufacturer',
+        'hu_issued_by',
         'company',
         'location',
         'product',

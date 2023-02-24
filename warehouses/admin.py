@@ -6,7 +6,6 @@ from .models import Warehouse
 class WarehouseAdmin(admin.ModelAdmin):
     readonly_fields = (
         'name',
-        'warehouse_code',
         )
     list_display = (
         'company',

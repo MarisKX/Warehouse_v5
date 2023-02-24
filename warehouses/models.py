@@ -13,7 +13,7 @@ class Warehouse(models.Model):
         related_name='warehouse_owner')
     name = models.CharField(max_length=254, blank=True, null=True, default="warehouse")
     display_name = models.CharField(max_length=254, blank=True)
-    warehouse_code = models.CharField(default="0", max_length=2, blank=True)
+    warehouse_code = models.CharField(default="0", max_length=6, blank=True)
     internal_warehouse = models.BooleanField(default=False)
     street_adress_1 = models.IntegerField(default=0, blank=True)
     street_adress_2 = models.CharField(max_length=100, blank=True)
@@ -29,8 +29,9 @@ class Warehouse(models.Model):
         Override the original save method to set the warehouse name and codes
         if it hasn't been set already.
         """
-        warehouse_count = Warehouse.objects.filter(company=self.company).count()
-        warehouse_owner = get_object_or_404(Company, name=self.company)
-        self.warehouse_code = f"" + str(warehouse_owner.manufacturer_code) + str(warehouse_count + 1).zfill(2)
+        if self.warehouse_code == "0":
+            warehouse_count = Warehouse.objects.filter(company=self.company).count()
+            warehouse_owner = get_object_or_404(Company, name=self.company)
+            self.warehouse_code = f"" + str(warehouse_owner.manufacturer_code) + str(warehouse_count + 1).zfill(2)
         self.name = self.display_name.replace(" ", "_").lower()
         super().save(*args, **kwargs)

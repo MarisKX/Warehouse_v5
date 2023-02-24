@@ -141,6 +141,7 @@ class Product(models.Model):
 
 class HandlingUnit(models.Model):
     manufacturer = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL, related_name="manufacturer")
+    hu_issued_by = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL, related_name="hu_issued_by")
     company = models.ForeignKey(Company, null=True, blank=True, on_delete=models.SET_NULL, related_name="company")
     location = models.ForeignKey(Warehouse, null=True, blank=True, on_delete=models.SET_NULL, related_name="warehouse")
     product = models.ForeignKey('Product', null=True, blank=True, on_delete=models.SET_NULL)
@@ -163,9 +164,9 @@ class HandlingUnit(models.Model):
 
     def save(self, *args, **kwargs):
         if self.hu == "0":
-            hu_count = HandlingUnit.objects.filter(manufacturer=self.manufacturer).count()
+            hu_count = HandlingUnit.objects.filter(hu_issued_by=self.hu_issued_by).count()
             hu_pre_code = get_object_or_404(Warehouse, name=self.location).warehouse_code
-            self.hu = f"" + hu_pre_code + str(hu_count + 1).zfill(14)
+            self.hu = f"" + hu_pre_code + str(hu_count + 1).zfill(12)
         product_tht_int = get_object_or_404(Product, name=self.product).expiry_end_date_terms
         product_tht_let = get_object_or_404(Product, name=self.product).expiry_end_date_cat
         if product_tht_let == "1":

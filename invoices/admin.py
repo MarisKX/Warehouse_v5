@@ -23,8 +23,8 @@ class WorkOrderItemRawMatAdmin(admin.TabularInline):
     list_display = (
         'work_order',
         'product',
-        'quantity_in_units',
-        'quantity_in_packages',
+        'qty',
+        'qty_in',
     )
 
     ordering = ('work_order',)
@@ -33,14 +33,12 @@ class WorkOrderItemRawMatAdmin(admin.TabularInline):
 class WorkOrderItemProductionAdmin(admin.TabularInline):
     model = WorkOrderItemProduction
     readonly_fields = (
-        'quantity_in_units',
-        'quantity_in_packages',
     )
     list_display = (
         'work_order',
         'product',
-        'quantity_in_single_units',
-        'enviroment_tax_on_workorder',
+        'qty',
+        'qty_in',
     )
 
     ordering = ('work_order',)
@@ -72,8 +70,8 @@ class InvoiceItemAdmin(admin.TabularInline):
         )
     list_display = (
         'product',
-        'quantity_in_units',
-        'quantity_in_packages',
+        'qty',
+        'qty_in',
         'price',
         'lineitem_total',
         'btw',
