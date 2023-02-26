@@ -6,12 +6,14 @@ from django.shortcuts import get_object_or_404
 # Model imports
 from invoices.models import Invoice  # RetailSale, ConstructionInvoice
 from .models import BankAccountEntry, BankAccount
+from taxes.models import TaxReport
 # from taxes.models import TaxReport
 
 # custom function imports
 from home.today_calculation import today_calc
 
 
+# Bank Account saldo updates
 @receiver(post_save, sender=BankAccountEntry)
 def update_on_save(sender, instance, created, **kwargs):
     """
@@ -28,6 +30,7 @@ def update_on_delete(sender, instance, **kwargs):
     instance.bank_account.update_bank_account_saldo()
 
 
+# Signals from Invoices
 @receiver(post_save, sender=Invoice)
 def create_transaction_entry(sender, instance, **kwargs):
     """
@@ -50,4 +53,47 @@ def create_transaction_entry(sender, instance, **kwargs):
                 amount_minus=instance.amount_total_with_btw,
             )
         instance.invoice_paid_confirmed = True
+        instance.save()
+
+
+# Signals from Tax reports
+@receiver(post_save, sender=TaxReport)
+def create_transaction_entry_taxes(sender, instance, **kwargs):
+    """
+    Update order total on lineitem update/create
+    """
+    if instance.taxes_paid and instance.taxes_paid_confirmed is False:
+        tax_payer_bank = get_object_or_404(BankAccount,
+                                           bank_account_owner_com=instance.company
+                                           )
+        gov_bank = get_object_or_404(BankAccount,
+                                     bank_account_owner_com="4750100004"
+                                     )
+        # mun_bank = get_object_or_404(BankAccount,
+        #                             bank_account_owner_com="4750100021"
+        #                             )
+
+        if instance.type == '2':
+            BankAccountEntry.objects.create(
+                    bank_account=tax_payer_bank,
+                    description=f"" + instance.report_number + ", Nature Tax",
+                    amount_minus=instance.amount,
+                )
+            BankAccountEntry.objects.create(
+                    bank_account=gov_bank,
+                    description=f"" + instance.report_number + ", Nature Tax",
+                    amount_plus=instance.amount,
+                )
+        elif instance.type == "1":
+            BankAccountEntry.objects.create(
+                    bank_account=tax_payer_bank,
+                    description=f"" + instance.report_number + ", BTW",
+                    amount_minus=instance.amount,
+                )
+            BankAccountEntry.objects.create(
+                    bank_account=gov_bank,
+                    description=f"" + instance.report_number + ", BTW",
+                    amount_plus=instance.amount,
+                )
+        instance.taxes_paid_confirmed = True
         instance.save()

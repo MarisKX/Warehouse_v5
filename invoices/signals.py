@@ -495,7 +495,7 @@ def grab_items_from_hu_on_invoice_save(
                 hu_with_product = HandlingUnit.objects.filter(
                     product=instance.product, qty_units='1', active=True).order_by('release_date')[0]
                 if hu_with_product.qty > instance.qty:
-                    hu_with_product.qty = hu_with_product.qty - instance.quantity_in_packages
+                    hu_with_product.qty = hu_with_product.qty - instance.qty
                     hu_with_product.save()
 
                     HandlingUnit.objects.create(
@@ -504,7 +504,7 @@ def grab_items_from_hu_on_invoice_save(
                         company=instance.invoice.suplier,
                         location=instance.invoice.suplier_warehouse,
                         product=instance.product,
-                        qty=instance.quantity_in_packages,
+                        qty=instance.qty,
                         qty_units="1",
                         batch_nr=hu_with_product.batch_nr,
                         release_date=hu_with_product.release_date,
@@ -516,7 +516,7 @@ def grab_items_from_hu_on_invoice_save(
                         company=instance.invoice.suplier,
                         location=instance.invoice.suplier_warehouse,
                         product=instance.product,
-                        qty=instance.quantity_in_packages,
+                        qty=instance.qty,
                         qty_units="1",
                         batch_nr=hu_with_product.batch_nr,
                         release_date=hu_with_product.release_date,
@@ -530,7 +530,7 @@ def grab_items_from_hu_on_invoice_save(
                         to_location=instance.invoice.suplier.display_name,
                         from_hu=hu_with_product.hu,
                         to_hu=hu_made,
-                        qty=instance.quantity_in_packages,
+                        qty=instance.qty,
                     )
 
                     HandlingUnitMovement.objects.create(
@@ -541,7 +541,7 @@ def grab_items_from_hu_on_invoice_save(
                             to_location=instance.invoice.suplier.display_name,
                             from_hu=hu_with_product.hu,
                             to_hu=hu_made,
-                            qty=instance.quantity_in_packages,
+                            qty=instance.qty,
                         )
 
                     hu_made.company = instance.invoice.customer
@@ -556,7 +556,7 @@ def grab_items_from_hu_on_invoice_save(
                             to_location=instance.invoice.customer.display_name,
                             from_hu=hu_made,
                             to_hu=hu_made,
-                            qty=instance.quantity_in_packages,
+                            qty=instance.qty,
                         )
 
                     packages_to_use = 0
@@ -618,19 +618,141 @@ def grab_items_from_hu_on_transfer_order_save(
     if created:
         units_to_use = instance.quantity_in_units
         while units_to_use > 0:
-            hu_with_product = HandlingUnit.objects.filter(
-                company=instance.to_number.company,
-                location=instance.to_number.warehouse_from,
-                product=instance.product,
-                qty_units='0',
-                active=True
-                ).order_by('release_date')[0]
-            if hu_with_product.qty > instance.quantity_in_units:
-                hu_with_product.qty = hu_with_product.qty - instance.quantity_in_units
-                hu_with_product.save()
+            try:
+                hu_with_product = HandlingUnit.objects.filter(
+                    company=instance.to_number.company,
+                    location=instance.to_number.warehouse_from,
+                    product=instance.product,
+                    qty_units='0',
+                    active=True
+                    ).order_by('release_date')[0]
+                if hu_with_product.qty > instance.quantity_in_units:
+                    hu_with_product.qty = hu_with_product.qty - instance.quantity_in_units
+                    hu_with_product.save()
+
+                    HandlingUnit.objects.create(
+                        manufacturer=hu_with_product.manufacturer,
+                        hu_issued_by=instance.to_number.company,
+                        company=instance.to_number.company,
+                        location=instance.to_number.warehouse_from,
+                        product=instance.product,
+                        qty=instance.quantity_in_units,
+                        qty_units="0",
+                        batch_nr=hu_with_product.batch_nr,
+                        release_date=hu_with_product.release_date,
+                    )
+
+                    hu_made = HandlingUnit.objects.filter(
+                        manufacturer=hu_with_product.manufacturer,
+                        hu_issued_by=instance.to_number.company,
+                        company=instance.to_number.company,
+                        location=instance.to_number.warehouse_from,
+                        product=instance.product,
+                        qty=instance.quantity_in_units,
+                        qty_units="0",
+                        batch_nr=hu_with_product.batch_nr,
+                        release_date=hu_with_product.release_date,
+                    ).last()
+
+                    HandlingUnitMovement.objects.create(
+                        hu=hu_with_product,
+                        date=instance.to_number.date,
+                        doc_nr=instance.to_number.to_number,
+                        from_location=instance.to_number.warehouse_from.display_name,
+                        to_location=instance.to_number.warehouse_from.display_name,
+                        from_hu=hu_with_product.hu,
+                        to_hu=hu_made,
+                        qty=instance.quantity_in_units,
+                        )
+
+                    HandlingUnitMovement.objects.create(
+                        hu=hu_made,
+                        date=instance.to_number.date,
+                        doc_nr=instance.to_number.to_number,
+                        from_location=instance.to_number.warehouse_from.display_name,
+                        to_location=instance.to_number.warehouse_from.display_name,
+                        from_hu=hu_with_product.hu,
+                        to_hu=hu_made,
+                        qty=instance.quantity_in_units,
+                    )
+
+                    hu_made.location = instance.to_number.warehouse_to
+                    hu_made.active = False
+                    hu_made.save()
+
+                    HandlingUnitMovement.objects.create(
+                        hu=hu_made,
+                        date=instance.to_number.date,
+                        doc_nr=instance.to_number.to_number,
+                        from_location=instance.to_number.warehouse_from.display_name,
+                        to_location=instance.to_number.warehouse_to.display_name,
+                        from_hu=hu_with_product.hu,
+                        to_hu=hu_made,
+                        qty=instance.quantity_in_units,
+                    )
+
+                    units_to_use = 0
+
+                elif hu_with_product.qty == instance.quantity_in_units:
+                    hu_with_product.qty = hu_with_product.qty - instance.quantity_in_units
+
+                    hu_with_product.location = instance.to_number.warehouse_to
+                    hu_with_product.active = False
+                    hu_with_product.save()
+
+                    HandlingUnitMovement.objects.create(
+                        hu=hu_with_product,
+                        date=instance.to_number.date,
+                        doc_nr=instance.to_number.to_number,
+                        from_location=instance.to_number.warehouse_from.display_name,
+                        to_location=instance.to_number.warehouse_to.display_name,
+                        from_hu=hu_with_product.hu,
+                        to_hu=hu_with_product.hu,
+                        qty=instance.quantity_in_units,
+                    )
+
+                    units_to_use = 0
+
+                else:
+                    leftover = units_to_use - hu_with_product.qty
+                    units_from_current_hu = units_to_use - leftover
+
+                    hu_with_product.location = instance.to_number.warehouse_to
+                    hu_with_product.active = False
+                    hu_with_product.save()
+
+                    HandlingUnitMovement.objects.create(
+                        hu=hu_with_product,
+                        date=instance.to_number.date,
+                        doc_nr=instance.to_number.to_number,
+                        from_location=instance.to_number.warehouse_from.display_name,
+                        to_location=instance.to_number.warehouse_to.display_name,
+                        from_hu=hu_with_product.hu,
+                        to_hu=hu_with_product.hu,
+                        qty=instance.quantity_in_units,
+                    )
+
+                    units_to_use = leftover
+            except IndexError:
+                hu_with_product = HandlingUnit.objects.filter(
+                    company=instance.to_number.company,
+                    location=instance.to_number.warehouse_from,
+                    product=instance.product,
+                    qty_units='1',
+                    active=True
+                    ).order_by('release_date')[0]
+
+                if hu_with_product.qty == 1:
+                    hu_with_product.qty = hu_with_product.qty - 1
+                    hu_with_product.active = False
+                    hu_with_product.save()
+                else:
+                    hu_with_product.qty = hu_with_product.qty - 1
+                    hu_with_product.save()
 
                 HandlingUnit.objects.create(
                     manufacturer=hu_with_product.manufacturer,
+                    hu_issued_by=instance.to_number.company,
                     company=instance.to_number.company,
                     location=instance.to_number.warehouse_from,
                     product=instance.product,
@@ -642,6 +764,7 @@ def grab_items_from_hu_on_transfer_order_save(
 
                 hu_made = HandlingUnit.objects.filter(
                     manufacturer=hu_with_product.manufacturer,
+                    hu_issued_by=instance.to_number.company,
                     company=instance.to_number.company,
                     location=instance.to_number.warehouse_from,
                     product=instance.product,
@@ -660,7 +783,7 @@ def grab_items_from_hu_on_transfer_order_save(
                     from_hu=hu_with_product.hu,
                     to_hu=hu_made,
                     qty=instance.quantity_in_units,
-                    )
+                )
 
                 HandlingUnitMovement.objects.create(
                     hu=hu_made,
@@ -673,63 +796,6 @@ def grab_items_from_hu_on_transfer_order_save(
                     qty=instance.quantity_in_units,
                 )
 
-                hu_made.location = instance.to_number.warehouse_to
-                hu_made.active = False
-                hu_made.save()
-
-                HandlingUnitMovement.objects.create(
-                    hu=hu_made,
-                    date=instance.to_number.date,
-                    doc_nr=instance.to_number.to_number,
-                    from_location=instance.to_number.warehouse_from.display_name,
-                    to_location=instance.to_number.warehouse_to.display_name,
-                    from_hu=hu_with_product.hu,
-                    to_hu=hu_made,
-                    qty=instance.quantity_in_units,
-                )
-
-                units_to_use = 0
-
-            elif hu_with_product.qty == instance.quantity_in_units:
-                hu_with_product.qty = hu_with_product.qty - instance.quantity_in_units
-
-                hu_with_product.location = instance.to_number.warehouse_to
-                hu_with_product.active = False
-                hu_with_product.save()
-
-                HandlingUnitMovement.objects.create(
-                    hu=hu_with_product,
-                    date=instance.to_number.date,
-                    doc_nr=instance.to_number.to_number,
-                    from_location=instance.to_number.warehouse_from.display_name,
-                    to_location=instance.to_number.warehouse_to.display_name,
-                    from_hu=hu_with_product.hu,
-                    to_hu=hu_with_product.hu,
-                    qty=instance.quantity_in_units,
-                )
-
-                units_to_use = 0
-
-            else:
-                leftover = units_to_use - hu_with_product.qty
-                units_from_current_hu = units_to_use - leftover
-
-                hu_with_product.location = instance.to_number.warehouse_to
-                hu_with_product.active = False
-                hu_with_product.save()
-
-                HandlingUnitMovement.objects.create(
-                    hu=hu_with_product,
-                    date=instance.to_number.date,
-                    doc_nr=instance.to_number.to_number,
-                    from_location=instance.to_number.warehouse_from.display_name,
-                    to_location=instance.to_number.warehouse_to.display_name,
-                    from_hu=hu_with_product.hu,
-                    to_hu=hu_with_product.hu,
-                    qty=instance.quantity_in_units,
-                )
-
-                units_to_use = leftover
 
 
 # Retail Sales

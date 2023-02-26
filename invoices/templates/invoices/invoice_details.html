@@ -114,11 +114,11 @@
                                     data-mdb-toggle="tooltip"
                                     title="Product Details"
                                     onclick="window.location='{% url 'product_details' item.product.code %}';">{{ item.product.display_name }}</td>
-                                {% if item.quantity_in_units > 0 %}
-                                    <td>{{ item.quantity_in_units }}</td>
+                                {% if item.qty_in == "0" > 0 %}
+                                    <td>{{ item.qty }}</td>
                                     <td>Units</td>
                                 {% else %}
-                                    <td>{{ item.quantity_in_packages }}</td>
+                                    <td>{{ item.qty }}</td>
                                     <td>Packages</td>
                                 {% endif %}
                                 <td>{{ item.price }} Eur</td>

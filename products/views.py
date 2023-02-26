@@ -244,6 +244,42 @@ def product_details_in_pdf(request, code):
     return FileResponse(buf, as_attachment=True, filename=f"" + product.display_name + "_" + product.code.lower() + ".pdf")
 
 
+# Add New category and/or subcategory
+@login_required
+def add_category(request):
+    """ A view to return the product detail page """
+
+    def is_ajax(request):
+        return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+    add_cat_form = CategoryForm()
+    add_subcat_form = SubCategoryForm()
+
+    if request.method == "POST":
+        if 'add-category-btn' in request.POST:
+            add_cat_form = CategoryForm(request.POST or None)
+            if add_cat_form.is_valid():
+                obj = add_cat_form.save(commit=False)
+                obj.save()
+                add_cat_form = CategoryForm()
+                return HttpResponseRedirect(reverse("add_product"))
+        elif 'add-subcategory-btn' in request.POST:
+            add_subcat_form = SubCategoryForm(request.POST or None)
+            if add_subcat_form.is_valid():
+                obj = add_subcat_form.save(commit=False)
+                obj.save()
+                add_subcat_form = SubCategoryForm()
+        else:
+            pass
+
+    context = {
+        'add_category': add_cat_form,
+        'add_subcategory': add_subcat_form,
+    }
+
+    return render(request, 'products/add_category.html', context)
+
+
 # Add New Product view
 @login_required
 def add_product(request):
@@ -275,20 +311,7 @@ def add_product(request):
     code_field.widget = code_field.hidden_widget()
 
     if request.method == "POST":
-        if 'add-category-btn' in request.POST:
-            add_cat_form = CategoryForm(request.POST or None)
-            if add_cat_form.is_valid():
-                obj = add_cat_form.save(commit=False)
-                obj.save()
-                add_cat_form = CategoryForm()
-                return HttpResponseRedirect(reverse("add_product"))
-        elif 'add-subcategory-btn' in request.POST:
-            add_subcat_form = SubCategoryForm(request.POST or None)
-            if add_subcat_form.is_valid():
-                obj = add_subcat_form.save(commit=False)
-                obj.save()
-                add_subcat_form = SubCategoryForm()
-        elif 'add-product-btn' in request.POST:
+        if 'add-product-btn' in request.POST:
             add_product_form = ProductForm(request.POST or None, request.FILES)
             if add_product_form.is_valid():
                 obj = add_product_form.save(commit=False)
@@ -301,8 +324,6 @@ def add_product(request):
 
     context = {
         'all_categories': all_categories,
-        'add_category': add_cat_form,
-        'add_subcategory': add_subcat_form,
         'add_product': add_product_form,
     }
 

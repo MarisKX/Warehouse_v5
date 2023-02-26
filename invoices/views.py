@@ -70,7 +70,7 @@ def all_invoices(request):
     return render(request, 'invoices/all_invoices.html', context)
 
 
-# Product Details View
+# Invoice Details View
 @login_required
 def invoice_details(request, invoice_number):
     """ A view to return the invoice detail page """
@@ -94,3 +94,19 @@ def invoice_details(request, invoice_number):
     }
 
     return render(request, 'invoices/invoice_details.html', context)
+
+
+# Add New Invoice
+@login_required
+def add_invoice(request):
+
+    def is_ajax(request):
+        return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+    all_companies = Company.objects.all()
+
+    if is_ajax(request):
+        print(request)
+
+
+# All WorkOrders View

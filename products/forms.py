@@ -46,6 +46,7 @@ class SubCategoryForm(forms.ModelForm):
             field.widget.attrs['class'] = 'select select-category col-6 add-product-select-field mb-4'
 
 
+
 class ProductForm(forms.ModelForm):
 
     class Meta:

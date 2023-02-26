@@ -2,9 +2,15 @@
     <div class="col-3 my-2 fs-4">
         <p>Today: {{ today }}</p>
     </div>
-    <div class="col-2 my-2">
-        <p>{{ valid_settings.valid_from }} - {{ valid_settings.valid_till }}</p>
-    </div>
+    {% if today < valid_settings.valid_till %}
+        <div class="col-2 my-2">
+            <p>{{ valid_settings.valid_from }} - {{ valid_settings.valid_till }}</p>
+        </div>
+    {% else %}
+        <div class="col-2 my-2">
+            <p class="text-red fw-bold">{{ valid_settings.valid_from }} - {{ valid_settings.valid_till }}</p>
+        </div>
+    {% endif %}
     <div class="col-2 my-2">
         <p>Allowed Transactions per day: {{ valid_settings.acions_per_day }}</p>
     </div>
