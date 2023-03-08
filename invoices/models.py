@@ -270,7 +270,7 @@ class RetailSaleItem(models.Model):
         super().save(*args, **kwargs)
 
 
-
+# Construction and building invoices
 class ConstructionInvoice(models.Model):
     c_invoice_number = models.CharField(max_length=12, default='C1')
     constructor = models.ForeignKey(
@@ -356,7 +356,6 @@ class ConstructionInvoiceItem(models.Model):
         super().save(*args, **kwargs)
 
 
-# Construction Invoice
 class ConstructionInvoiceLabourCosts(models.Model):
     c_invoice = models.ForeignKey(
         ConstructionInvoice, null=False, blank=False,

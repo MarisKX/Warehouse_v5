@@ -12,9 +12,11 @@ import datetime
 from dateutil.relativedelta import *
 
 # Model imports
-from .models import Invoice, InvoiceItem
+from .models import Invoice, InvoiceItem, RetailSale, RetailSaleItem
 from companies.models import Company
 from bank.models import BankAccountEntry, BankAccount
+from products.models import Product
+from citizens.models import Citizen
 
 
 # All Invoices View
@@ -107,6 +109,38 @@ def add_invoice(request):
 
     if is_ajax(request):
         print(request)
+
+
+# Bulk Retail Sale View
+@login_required
+def bulk_retail_sale(request):
+
+    all_companies = Company.objects.all()
+    all_products = Product.objects.all()
+
+    def is_ajax(request):
+        return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+    if is_ajax(request):
+        bulk_retailer = request.GET.get('retailer')
+        bulk_product = request.GET.get('product')
+        bulk_qty = request.GET.get('qty')
+        if retailer and product and qty is not None:
+            all_citizens = Citizen.objects.all()
+            retailer = get_object_or_404(Company, registration_number=bulk_retailer)
+            for citizen in all_citizens:
+                RetailSale.objects.create(
+                        retailer=retailer,
+                        description=f"" + instance.report_number + ", BTW",
+                        amount_plus=instance.amount,
+                )
+
+    context = {
+        'all_companies': all_companies,
+        'all_products': all_products,
+    }
+
+    return render(request, 'invoices/bulk_retail_sale.html', context)
 
 
 # All WorkOrders View

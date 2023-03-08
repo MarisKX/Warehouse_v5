@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 
 # Model imports
-from invoices.models import Invoice  # RetailSale, ConstructionInvoice
+from invoices.models import Invoice, RetailSale  # ConstructionInvoice
 from .models import BankAccountEntry, BankAccount
 from taxes.models import TaxReport
 # from taxes.models import TaxReport
@@ -96,4 +96,27 @@ def create_transaction_entry_taxes(sender, instance, **kwargs):
                     amount_plus=instance.amount,
                 )
         instance.taxes_paid_confirmed = True
+        instance.save()
+
+
+# Signals from Retail sales
+@receiver(post_save, sender=RetailSale)
+def create_transaction_entry_for_retail_sales(sender, instance, **kwargs):
+    """
+    Update order total on lineitem update/create
+    """
+    if instance.retail_sale_paid and instance.retail_sale_paid_confirmed is False:
+        retailer_bank = get_object_or_404(BankAccount, bank_account_owner_com=instance.retailer)
+        BankAccountEntry.objects.create(
+                bank_account=retailer_bank,
+                description=instance.retail_sale_number,
+                amount_plus=instance.amount_total_with_btw,
+            )
+        customer_bank = get_object_or_404(BankAccount, bank_account_owner_pp=instance.customer)
+        BankAccountEntry.objects.create(
+                bank_account=customer_bank,
+                description=instance.retail_sale_number,
+                amount_minus=instance.amount_total_with_btw,
+            )
+        instance.retail_sale_paid_confirmed = True
         instance.save()

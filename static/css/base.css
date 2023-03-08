@@ -182,3 +182,7 @@ legend {
 .pointer {
     cursor: pointer;
 }
+
+.bulk-retail {
+    width: 75%;
+}
