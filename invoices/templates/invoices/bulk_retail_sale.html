@@ -14,13 +14,19 @@
         <h4 class="my-5 mx-5">Create Bulk Retail Sale</h4>  
     </div>
     <div class="row">
-        <div class="col-2 offset-3">
+        <div class="col-2 offset-2">
             <h6 class="mt-4 ms-3">Select Retailer:</h6>
             <select class="select bulk-retail retailer-select" name="retailer-select" id="retailer-select">
                 <option value="">-</option>
                 {% for c in all_companies %}
                     <option value="{{ c.registration_number }}">{{ c.display_name}}</option>
                 {% endfor %}
+            </select>
+        </div>
+        <div class="col-2">
+            <h6 class="mt-4 ms-3">Select Retailer Warehouse:</h6>
+            <select class="select bulk-retail retailer-warehouse-select" name="retailer-warehouse-select" id="retailer-warehouse-select">
+                <option value="">-</option>
             </select>
         </div>
         <div class="col-2">
@@ -41,6 +47,10 @@
                 <option value="4">4</option>
                 <option value="5">5</option>
             </select>
+        </div>
+        <div class="col-1">
+            <label for="price" class="form-label price-label"><h6 class="mt-4 ms-3">Price:</h6></label>
+            <input class="bulk-retail" id="price" name="price" pattern="^\d*(\.\d{1,2})?$" value="0.00"/>
         </div>
         <div class="col-2 pt-5">
             <button type="submit" class="btn btn-secondary bg-green" id="create-bulk-retail-sale">

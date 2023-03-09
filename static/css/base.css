@@ -186,3 +186,13 @@ legend {
 .bulk-retail {
     width: 75%;
 }
+
+.price-label {
+    margin-bottom: -0.2rem;
+    color: inherit;
+}
+
+#price {
+    height: 24px;
+    margin-top: 2px;
+}
