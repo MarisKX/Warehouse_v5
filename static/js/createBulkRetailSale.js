@@ -1,7 +1,6 @@
 $(document).ready(function(){
     $(document.body).on('change',"#retailer-select",function(){
         let retailerCheck = $(this).val()
-        console.log(retailerCheck)
         $.ajax({
             url: '',
             type: 'get',
@@ -24,17 +23,11 @@ $(document).ready(function(){
         });
     });
     $("#create-bulk-retail-sale").click(function(){
-        console.log("Button click received")
         let retailer = $("#retailer-select").val();
         let retailerWarehouse = $("#retailer-warehouse-select").val();
         let product = $("#product-select").val();
         let qty = $("#qty-select").val();
         let price = +$("input[name='price']").val();
-        console.log(retailer)
-        console.log(retailerWarehouse)
-        console.log(product)
-        console.log(qty)
-        console.log(price)
         $.ajax({
             url: '',
             type: 'get',
@@ -47,6 +40,11 @@ $(document).ready(function(){
             },
             success: function(response){
                 console.log("Success")
+                let retailInvoice = response.retailInvoice
+                $.each(retailInvoice,function(key, value){
+                    $(".response").append(
+                        '<div>' + value + '</div>');
+                });
             }
         });
     });

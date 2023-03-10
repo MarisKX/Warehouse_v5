@@ -158,6 +158,7 @@ def bulk_retail_sale(request):
             retailerWarehouse = get_object_or_404(Warehouse, name=bulk_retailer_warehouse)
             product = get_object_or_404(Product, name=bulk_product)
             today = today_calc()
+            retail_sales_invoices = []
             for citizen in all_citizens:
                 RetailSale.objects.create(
                     retailer=retailer,
@@ -167,25 +168,25 @@ def bulk_retail_sale(request):
                     retail_sale_paid=False,
                     retail_sale_paid_confirmed=False,
                 )
-                print("retail sale created")
                 created_retail_sale = RetailSale.objects.filter(
                     retailer=retailer,
                     retailer_warehouse=retailerWarehouse,
                     customer=citizen,
                     date=today,
                 ).last()
-                print(f"Last retail sale found " + created_retail_sale.retail_sale_number + "")
-                print(type(bulk_qty))
-                print(type(bulk_price))
+                retail_sales_invoices.append(created_retail_sale.retail_sale_number)
                 RetailSaleItem.objects.create(
                     retail_sale=created_retail_sale,
                     product=product,
                     quantity=bulk_qty,
                     price=bulk_price,
                 )
-                print("Created Retail Sale Items")
                 created_retail_sale.retail_sale_paid = True
                 created_retail_sale.save()
+            
+            return JsonResponse({
+                "retailInvoice": list(retail_sales_invoices),
+                })
 
     context = {
         'all_companies': all_companies,

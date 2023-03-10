@@ -105,9 +105,11 @@ def grab_items_from_hu_on_work_order_save(
         if instance.qty_in == "0":
             print("Requested " + str(instance.qty) + " units")
             units_to_use = instance.qty
-            print(f"" + str(units_to_use) + "," + str(instance.get_qty_in_display))
+            print(f"Units to use " + str(units_to_use) + "")
             while units_to_use > 0:
+                print(f"Units to use (" + str(units_to_use) + ") are > than 0")
                 try:
+                    print(f"Try to find HU with units")
                     hu_with_product = HandlingUnit.objects.filter(
                         company=instance.work_order.company,
                         location=instance.work_order.warehouse_raw_materials,
@@ -115,11 +117,13 @@ def grab_items_from_hu_on_work_order_save(
                         qty_units='0',
                         active=True
                         ).order_by('release_date')[0]
+                    print(f"Found: ")
                     print(hu_with_product.hu)
+                    print(f"With " + str(hu_with_product.qty) + " on it")
 
-                    if hu_with_product.qty > instance.qty:
+                    if hu_with_product.qty > units_to_use:
                         print("Writing off from existing HU as required qty is less than qty on palet and leaving reminder in palet")
-                        hu_with_product.qty = hu_with_product.qty - instance.qty
+                        hu_with_product.qty = hu_with_product.qty - units_to_use
                         hu_with_product.save()
                         HandlingUnitMovement.objects.create(
                             hu=hu_with_product,
@@ -133,9 +137,9 @@ def grab_items_from_hu_on_work_order_save(
                         )
                         units_to_use = 0
 
-                    elif hu_with_product.qty == instance.qty:
+                    elif hu_with_product.qty == units_to_use:
                         print("Writing off all HU as required qty is equal to qty on palet " + hu_with_product.hu)
-                        hu_with_product.qty = hu_with_product.qty - instance.qty
+                        hu_with_product.qty = hu_with_product.qty - units_to_use
                         hu_with_product.active = False
                         hu_with_product.save()
                         HandlingUnitMovement.objects.create(
@@ -153,7 +157,7 @@ def grab_items_from_hu_on_work_order_save(
                     else:
                         print("Writing off all HU as required qty is more than qty on palet and returning leftover value")
                         leftover = units_to_use - hu_with_product.qty
-                        print(f"Leftover is " + leftover + " as units to use(" + units_to_use + ") is larger than units on palet (" + hu_with_product.qty + " with number " + hu_with_product.hu)
+                        print(f"Leftover is " + str(leftover) + " as units to use(" + str(units_to_use) + ") is larger than units on palet (" + str(hu_with_product.qty) + " with number " + hu_with_product.hu)
                         units_from_current_hu = units_to_use - leftover
                         hu_with_product.qty = 0
                         hu_with_product.active = False
@@ -242,7 +246,7 @@ def grab_items_from_hu_on_work_order_save(
                     active=True
                     ).order_by('release_date')[0]
 
-                if hu_with_product.qty > instance.qty:
+                if hu_with_product.qty > packages_to_use:
                     hu_with_product.qty = hu_with_product.qty - instance.qty
                     hu_with_product.save()
                     HandlingUnitMovement.objects.create(
@@ -257,7 +261,7 @@ def grab_items_from_hu_on_work_order_save(
                     )
                     packages_to_use = 0
 
-                elif hu_with_product.qty == instance.qty:
+                elif hu_with_product.qty == packages_to_use:
                     hu_with_product.qty = hu_with_product.qty - instance.qty
                     hu_with_product.active = False
                     hu_with_product.save()
@@ -929,7 +933,6 @@ def grab_items_from_hu_on_retail_sale_save(
             elif hu_with_product.qty == instance.quantity:
                 hu_with_product.qty = hu_with_product.qty - instance.quantity
 
-                hu_with_product.location = instance.retail_sale.retailer_warehouse,
                 hu_with_product.active = False
                 hu_with_product.save()
 
@@ -950,7 +953,6 @@ def grab_items_from_hu_on_retail_sale_save(
                 leftover = units_to_use - hu_with_product.qty
                 units_from_current_hu = units_to_use - leftover
 
-                hu_with_product.location = instance.retail_sale.retailer_warehouse,
                 hu_with_product.active = False
                 hu_with_product.save()
 

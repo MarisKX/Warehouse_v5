@@ -334,8 +334,8 @@ def add_product(request):
 def all_handling_units(request):
     """ A view to show all hu's, including sorting and search queries """
 
-    handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("company").order_by("product").order_by("release_date")
-    handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("company").order_by("product").order_by("release_date")
+    handling_units_with_units = HandlingUnit.objects.filter(qty_units="0", active=True).order_by("location")
+    handling_units_with_packages = HandlingUnit.objects.filter(qty_units="1", active=True).order_by("location")
     products = Product.objects.all().order_by("display_name")
     companies = Company.objects.all().order_by("display_name")
 
