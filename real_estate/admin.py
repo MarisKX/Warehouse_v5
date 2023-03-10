@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import RealEstate, RealEstateCoordinates, RealEstateTypes
+from .models import RealEstate, RealEstateCoordinates, RealEstateTypes, RealEstateOwnerHistory
 
 # Register your models here.
 
@@ -13,6 +13,23 @@ class RealEstateTypesAdmin(admin.ModelAdmin):
     )
 
     ordering = ('display_name',)
+
+
+class RealEstateOwnerHistoryAdmin(admin.TabularInline):
+    model = RealEstateOwnerHistory
+    readonly_fields = ()
+    list_display = (
+        'owner_com',
+        'owner_pp',
+        'date_of_purchase',
+        'cadastre_value_of_purchase',
+        'purchase_price',
+        'date_of_sale',
+        'cadastre_value_of_sale',
+        'sales_price',
+    )
+
+    ordering = ('date_of_purchase',)
 
 
 class RealEstateCoordinatesAdmin(admin.TabularInline):
@@ -32,7 +49,7 @@ class RealEstateCoordinatesAdmin(admin.TabularInline):
 
 
 class RealEstateAdmin(admin.ModelAdmin):
-    inlines = (RealEstateCoordinatesAdmin, )
+    inlines = (RealEstateCoordinatesAdmin, RealEstateOwnerHistoryAdmin, )
     readonly_fields = ('cadastre_number', )
     list_display = (
         'owner_com',

@@ -2,6 +2,7 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 from .models import RealEstate, RealEstateCoordinates, RealEstateTypes
+from home.models import AppSettings
 
 
 # Update real estate details on save and/or delete
@@ -30,3 +31,14 @@ def update_on_delete(sender, instance, **kwargs):
     Update order total on lineitem delete
     """
     instance.real_estate.update_field_size()
+
+
+# Update real estate details on save and/or delete
+@receiver(post_save, sender=AppSettings)
+def update_cadastre_values_on_new_settings(sender, instance, created, **kwargs):
+    """
+    Create Invoice number
+    """
+    all_real_estates = RealEstate.objects.filter(active=True)
+    for real_estate in all_real_estates:
+        real_estate.save()
