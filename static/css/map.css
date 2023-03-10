@@ -1,0 +1,20 @@
+#map {
+    width: 80%;
+    margin: auto;
+    height: 1200px;
+    overflow: scroll;
+    border: 1px solid green;
+  }
+
+svg {
+    overflow: hidden;
+}
+
+.field {
+    color: burlywood;
+}
+
+title {
+    color: black;
+    font-size: xx-large;
+}

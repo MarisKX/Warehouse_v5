@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'bank',
     'reports',
     'taxes',
+    'real_estate',
 ]
 
 MIDDLEWARE = [

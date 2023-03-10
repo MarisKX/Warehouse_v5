@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/map.css' %}">
+{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        <div class="row">
+            <div class="col"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+
+        <div id="map">
+            <svg height="45000" width="70000">
+                <rect class="background"
+                        x="0"
+                        y="0"
+                        width="70000"
+                        height="30250"
+                        fill="mediumseagreen"/>
+                {% for coordinates in all_coordinates %}
+                    <rect class="building"
+                        x="{{ coordinates.coordinates_min_E }}"
+                        y="{{ coordinates.coordinates_min_S }}"
+                        width="{{ coordinates.width }}"
+                        height="{{ coordinates.height }}"
+                        fill="{{ coordinates.real_estate.property_type.color }}"/>
+                {% endfor %}
+                {% for property in all_real_estates %}
+                    <text class="fs-4"
+                        x="{{ property.center_coordinates_min_E }}"
+                        y="{{ property.center_coordinates_min_S }}">
+                        <title>
+                            {% if property.street_adress_1 != 0 %}
+                            {{ property.street_adress_1 }}, {{ property.street_adress_2 }}, {{ property.post_code }}
+                            {{ property.owner_com.display_name }}
+                            {{ property.owner_pp.display_name }}
+                            {% else %}
+                            {{ property.street_adress_2 }}, {{ property.post_code }}
+                            {{ property.owner_com.display_name }}
+                            {{ property.owner_pp.display_name }}
+                            {% endif %}
+                        </title>
+                        {% if property.street_adress_1 != 0 %}
+                        {{ property.street_adress_1 }}
+                        {% else %}
+                        ...
+                        {% endif %}
+                        {% if property.property_type.name == 'streets_and_roads' %}
+                            {% if property.street_adress_2 != None %}
+                            {{ property.street_adress_2 }}
+                            {% endif %}
+                        {% endif %}
+                    </text>           
+                {% endfor %}
+            </svg>
+        </div> 
+    </div>
+{% endblock %}
