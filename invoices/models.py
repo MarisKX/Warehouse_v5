@@ -279,8 +279,10 @@ class ConstructionInvoice(models.Model):
         Warehouse,
         on_delete=models.CASCADE,
         related_name="constructor_warehouse")
-    build_customer = models.ForeignKey(
-        Company, on_delete=models.CASCADE, related_name="build_customer")
+    build_customer_com = models.ForeignKey(
+        Company, on_delete=models.CASCADE, related_name="build_customer_com")
+    build_customer_pp = models.ForeignKey(
+        Citizen, on_delete=models.CASCADE, related_name="build_customer_pp")
     date = models.DateField(auto_now_add=False)
     payment_term_choices = [
         ('14', '14 days'),

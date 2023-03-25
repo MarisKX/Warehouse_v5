@@ -187,7 +187,8 @@ class ConstructionInvoiceAdmin(admin.ModelAdmin):
     list_display = (
         'c_invoice_number',
         'constructor',
-        'build_customer',
+        'build_customer_com',
+        'build_customer_pp',
         'date',
         'payment_term',
         'c_invoice_paid',
