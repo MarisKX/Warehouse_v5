@@ -85,6 +85,10 @@
                     <a id="{{ c.registration_number }}" class="dropdown-item" href="#">{{ c.display_name }}</a>
                   </li>
                 {% endfor %}
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="{% url 'hu_merge' %}">Merging HU</a>
+                </li>
               </ul>
             </li>
             <li><hr class="dropdown-divider"></li>

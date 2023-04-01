@@ -25,6 +25,9 @@ from warehouses.models import Warehouse
 # Form imports
 from .forms import ProductForm, CategoryForm, SubCategoryForm
 
+# Function imports
+from home.today_calculation import today_calc
+
 
 # All Products view
 @login_required
@@ -330,6 +333,7 @@ def add_product(request):
     return render(request, 'products/add_product.html', context)
 
 
+# HU view and operations
 @login_required
 def all_handling_units(request):
     """ A view to show all hu's, including sorting and search queries """
@@ -374,3 +378,176 @@ def all_handling_units(request):
     }
 
     return render(request, 'products/handling_units.html', context)
+
+
+# Merging HU
+@login_required
+def hu_merge(request):
+
+    all_companies = Company.objects.all().order_by("display_name")
+    today = today_calc()
+
+    def is_ajax(request):
+        return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
+
+    if is_ajax(request):
+        hu1_req = request.GET.get('hu1')
+        hu2_req = request.GET.get('hu2')
+
+        if hu1_req and hu2_req is not None:
+            print(hu1_req)
+            print(hu2_req)
+            try:
+                hu_1 = HandlingUnit.objects.get(hu=hu1_req, active=True)
+                hu_2 = HandlingUnit.objects.get(hu=hu2_req, active=True)
+                print(hu_1.product.display_name)
+                print(hu_2.product.display_name)
+                if hu_1.product == hu_2.product and hu_1.company == hu_2.company and hu_1.location == hu_1.location and hu_1.qty_units == hu_1.qty_units:
+                    print("Products can be merged, both are in units or packages")
+
+                    if hu_1.tht:
+                        if hu_1.tht <= hu_2.tht:
+                            main_hu = hu_1
+                            secondary_hu = hu_2
+                        else:
+                            main_hu = hu_2
+                            secondary_hu = hu_1
+                    else:
+                        if hu_1.release_date <= hu_2.release_date:
+                            main_hu = hu_1
+                            secondary_hu = hu_2
+                        else:
+                            main_hu = hu_2
+                            secondary_hu = hu_1
+
+                    if hu_1.qty_units == "0":
+                        print("Product qty are in units")
+                        total_units = hu_1.qty + hu_2.qty
+                        print(total_units)
+                        if total_units < main_hu.product.units_per_package:
+                            print("Merged HU will be one with less than full package")
+
+                            main_hu.qty = main_hu.qty + secondary_hu.qty
+                            main_hu.save()
+
+                            HandlingUnitMovement.objects.create(
+                                hu=main_hu,
+                                date=today,
+                                doc_nr="Merged",
+                                from_location=main_hu.company.display_name,
+                                to_location=main_hu.company.display_name,
+                                from_hu=secondary_hu.hu,
+                                to_hu=main_hu.hu,
+                                qty=secondary_hu.qty,
+                            )
+
+                            secondary_hu.qty = 0
+                            secondary_hu.active = False
+                            secondary_hu.save()
+
+                            HandlingUnitMovement.objects.create(
+                                hu=secondary_hu,
+                                date=today,
+                                doc_nr="Merged",
+                                from_location=secondary_hu.company.display_name,
+                                to_location=secondary_hu.company.display_name,
+                                from_hu=secondary_hu.hu,
+                                to_hu=main_hu.hu,
+                                qty=secondary_hu.qty,
+                            )
+
+                            success_message = f"" + str(main_hu.hu) + " merged with " + str(secondary_hu.hu) + ", qty on " + str(main_hu.hu) + " is " + str(main_hu.qty) + " and qty " + str(secondary_hu.hu) + " is " + str(secondary_hu.qty) + "."
+
+                            return JsonResponse({
+                                "success_message": success_message,
+                            })
+
+                        elif total_units == main_hu.product.units_per_package:
+                            print("Merged HU will be one full package")
+                            main_hu.qty = 1
+                            main_hu.qty_units = "1"
+                            main_hu.save()
+
+                            HandlingUnitMovement.objects.create(
+                                hu=main_hu,
+                                date=today,
+                                doc_nr="Merged",
+                                from_location=main_hu.company.display_name,
+                                to_location=main_hu.company.display_name,
+                                from_hu=secondary_hu.hu,
+                                to_hu=main_hu.hu,
+                                qty=secondary_hu.qty,
+                            )
+
+                            secondary_hu.qty = 0
+                            secondary_hu.active = False
+                            secondary_hu.save()
+
+                            HandlingUnitMovement.objects.create(
+                                hu=secondary_hu,
+                                date=today,
+                                doc_nr="Merged",
+                                from_location=secondary_hu.company.display_name,
+                                to_location=secondary_hu.company.display_name,
+                                from_hu=secondary_hu.hu,
+                                to_hu=main_hu.hu,
+                                qty=secondary_hu.qty,
+                            )
+
+                            success_message = f"" + str(main_hu.hu) + " merged with " + str(secondary_hu.hu) + ", qty on " + str(main_hu.hu) + " is " + str(main_hu.qty) + " and qty " + str(secondary_hu.hu) + " is " + str(secondary_hu.qty) + "."
+
+                            return JsonResponse({
+                                "success_message": success_message,
+                            })
+                        else:
+                            print("Merged HU will be more than full package")
+
+                            total_units = main_hu.qty + secondary_hu.qty
+                            from_sec_hu = main_hu.product.units_per_package - main_hu.qty
+
+                            HandlingUnitMovement.objects.create(
+                                hu=main_hu,
+                                date=today,
+                                doc_nr="Merged",
+                                from_location=main_hu.company.display_name,
+                                to_location=main_hu.company.display_name,
+                                from_hu=secondary_hu.hu,
+                                to_hu=main_hu.hu,
+                                qty=from_sec_hu,
+                            )
+
+                            main_hu.qty = 1
+                            main_hu.qty_units = "1"
+                            main_hu.save()
+
+                            HandlingUnitMovement.objects.create(
+                                hu=secondary_hu,
+                                date=today,
+                                doc_nr="Merged",
+                                from_location=secondary_hu.company.display_name,
+                                to_location=secondary_hu.company.display_name,
+                                from_hu=secondary_hu.hu,
+                                to_hu=main_hu.hu,
+                                qty=from_sec_hu,
+                            )
+
+                            secondary_hu.qty = total_units - main_hu.product.units_per_package
+                            secondary_hu.save()
+
+                            success_message = f"" + str(main_hu.hu) + " merged with " + str(secondary_hu.hu) + ", qty on " + str(main_hu.hu) + " is " + str(main_hu.qty) + " and qty " + str(secondary_hu.hu) + " is " + str(secondary_hu.qty) + "."
+
+                            return JsonResponse({
+                                "success_message": success_message,
+                            })
+
+            except HandlingUnit.DoesNotExist:
+                error_message = "No active HU found"
+                return JsonResponse({
+                    "error_message": error_message,
+                })
+
+    context = {
+        'all_companies': all_companies,
+    }
+
+    return render(request, 'products/hu_merge.html', context)

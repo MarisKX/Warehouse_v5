@@ -196,3 +196,7 @@ legend {
     height: 24px;
     margin-top: 2px;
 }
+
+.hu-input-field {
+    width: 80%;
+}
