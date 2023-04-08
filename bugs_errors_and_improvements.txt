@@ -1,0 +1,4 @@
+1. When write of units in workorder, if package needs to be unpacked, the new HU gets company credentials instead of keeping OE manufacturer
+(Fixed, needs testing)
+2. Create HU details view
+3. Test construction signals

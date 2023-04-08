@@ -199,7 +199,7 @@ def grab_items_from_hu_on_work_order_save(
                             hu_with_product.save()
                             print(f"Removing one package and leaving " + str(hu_with_product.qty) + " packages on palet")
                         HandlingUnit.objects.create(
-                            manufacturer=instance.work_order.company,
+                            manufacturer=hu_with_product.manufacturer,
                             hu_issued_by=instance.work_order.company,
                             company=instance.work_order.company,
                             location=instance.work_order.warehouse_production,
@@ -211,7 +211,7 @@ def grab_items_from_hu_on_work_order_save(
                         )
                         print("Created new HU with one package on it, splited in units to procede")
                         hu_made = HandlingUnit.objects.filter(
-                            manufacturer=instance.work_order.company,
+                            manufacturer=hu_with_product.manufacturer,
                             hu_issued_by=instance.work_order.company,
                             company=instance.work_order.company,
                             location=instance.work_order.warehouse_production,
