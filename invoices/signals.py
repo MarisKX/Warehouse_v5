@@ -859,27 +859,89 @@ def grab_items_from_hu_on_retail_sale_save(
     if created:
         units_to_use = instance.quantity
 
-        oldest_hu_units = HandlingUnit.objects.filter(
-            company=instance.retail_sale.retailer,
-            location=instance.retail_sale.retailer_warehouse,
-            product=instance.product,
-            qty_units='0',
-            active=True
-            ).order_by('release_date')[0]
+        try:
 
-        oldest_hu_packages = HandlingUnit.objects.filter(
-            company=instance.retail_sale.retailer,
-            location=instance.retail_sale.retailer_warehouse,
-            product=instance.product,
-            qty_units='1',
-            active=True
-            ).order_by('release_date')[0]
+            oldest_hu_units = HandlingUnit.objects.filter(
+                company=instance.retail_sale.retailer,
+                location=instance.retail_sale.retailer_warehouse,
+                product=instance.product,
+                qty_units='0',
+                active=True
+                ).order_by('release_date')[0]
+        except IndexError:
+            oldest_hu_units = 0
 
-        if oldest_hu_units.release_date > oldest_hu_packages.release_date:
+        try:
+            oldest_hu_packages = HandlingUnit.objects.filter(
+                company=instance.retail_sale.retailer,
+                location=instance.retail_sale.retailer_warehouse,
+                product=instance.product,
+                qty_units='1',
+                active=True
+                ).order_by('release_date')[0]
+        except IndexError:
+            oldest_hu_packages = 0
+
+        if oldest_hu_units != 0 and oldest_hu_packages != 0:
+            if oldest_hu_units.release_date > oldest_hu_packages.release_date:
+                if oldest_hu_packages.qty == 1:
+                    oldest_hu_packages.qty_units = "0"
+                    oldest_hu_packages.qty = instance.product.units_per_package
+                    oldest_hu_packages.save()
+        elif oldest_hu_units == 0:
             if oldest_hu_packages.qty == 1:
                 oldest_hu_packages.qty_units = "0"
                 oldest_hu_packages.qty = instance.product.units_per_package
                 oldest_hu_packages.save()
+            else:
+                oldest_hu_packages.qty = oldest_hu_packages.qty_units - 1
+                oldest_hu_packages.save()
+
+                HandlingUnit.objects.create(
+                    manufacturer=oldest_hu_packages.manufacturer,
+                    hu_issued_by=instance.retail_sale.retailer,
+                    company=instance.retail_sale.retailer,
+                    location=instance.retail_sale.retailer_warehouse,
+                    product=instance.product,
+                    qty=instance.product.units_per_package,
+                    qty_units="0",
+                    batch_nr=oldest_hu_packages.batch_nr,
+                    release_date=oldest_hu_packages.release_date,
+                )
+
+                hu_made = HandlingUnit.objects.filter(
+                    manufacturer=oldest_hu_packages.manufacturer,
+                    hu_issued_by=instance.retail_sale.retailer,
+                    company=instance.retail_sale.retailer,
+                    location=instance.retail_sale.retailer_warehouse,
+                    product=instance.product,
+                    qty=instance.product.units_per_package,
+                    qty_units="0",
+                    batch_nr=oldest_hu_packages.batch_nr,
+                    release_date=oldest_hu_packages.release_date,
+                ).last()
+
+                HandlingUnitMovement.objects.create(
+                    hu=oldest_hu_packages,
+                    date=instance.retail_sale.date,
+                    doc_nr=instance.retail_sale.retail_sale_number,
+                    from_location=instance.retail_sale.retailer_warehouse,
+                    to_location=instance.retail_sale.retailer_warehouse,
+                    from_hu=oldest_hu_packages.hu,
+                    to_hu=hu_made,
+                    qty=units_to_use,
+                    )
+
+                HandlingUnitMovement.objects.create(
+                    hu=hu_made,
+                    date=instance.retail_sale.date,
+                    doc_nr=instance.retail_sale.retail_sale_number,
+                    from_location=instance.retail_sale.retailer_warehouse,
+                    to_location=instance.retail_sale.retailer_warehouse,
+                    from_hu=oldest_hu_packages.hu,
+                    to_hu=hu_made,
+                    qty=units_to_use,
+                    )
 
         while units_to_use > 0:
             hu_with_product = HandlingUnit.objects.filter(

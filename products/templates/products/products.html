@@ -48,6 +48,7 @@
                     <th scope="col">Name</th>
                     <th scope="col">Category</th>
                     <th scope="col">Subkategory</th>
+                    <th scope="col">Env. Tax Class</th>
                     <th scope="col">Enviroment Tax</th>
                     <th scope="col">Expiry</th>
                     <th scope="col">Edit</th>
@@ -70,6 +71,7 @@
                         <td>{{ product.display_name }}</td>
                         <td>{{ product.category.display_name }}</td>
                         <td>{{ product.subcategory.display_name }}</td>
+                        <td>{{ product.get_enviroment_tax_class_display }}</td>
                         {% if product.enviroment_tax_amount > 0 %}
                             <td>{{ product.enviroment_tax_amount }}</td>
                         {% else %}
