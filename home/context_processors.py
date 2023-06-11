@@ -12,7 +12,7 @@ from .today_calculation import today_calc
 
 
 def extras(request):
-    if 1 > 1:
+    if request.user.is_authenticated:
         all_companies_with_stock = Company.objects.filter(
             warehouse=True).order_by('name')
         valid_settings = get_object_or_404(AppSettings, valid=True)
@@ -23,7 +23,7 @@ def extras(request):
         last_dates.append(str(last_invoice))
 
         last_workorder = WorkOrder.objects.latest('date').date
-        # last_dates.append(str(last_workorder))
+        last_dates.append(str(last_workorder))
 
         # last_retail_sale = RetailSale.objects.latest('date').date
         # last_dates.append(str(last_retail_sale))

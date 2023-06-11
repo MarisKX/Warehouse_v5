@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_title %}{{ hu.hu }}{% endblock %}
+
+{% block page_header %}
+    <div class="container header-container">
+        {% include 'includes/top-data.html' %}
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div class="main-content">
+        <h4 class="my-5 mx-5">{{ hu.hu }}</h4>  
+    </div>
+
+    <div class="col-md-6 offset-md-3 pb-5 pt-5">
+
+        <table class="table table-striped caption-top">
+            <caption>Unit HU</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Doc. Nr.</th>
+                    <th scope="col">Qty</th>
+                    <th scope="col">From Location</th>
+                    <th scope="col">From HU</th>
+                    <th scope="col">To Location</th>
+                    <th scope="col">To HU</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for hu_detail in hu_details %}
+                    <tr>
+                        <td>{{ hu_detail.date }}</td>
+                        <td>{{ hu_detail.doc_nr }}</td>
+                        <td>{{ hu_detail.qty }}</td>
+                        <td>{{ hu_detail.from_location }}</td>
+                        {% if hu_detail.from_hu == "-" %}
+                            <td>{{ hu_detail.from_hu }}</td>
+                        {% else %}
+                            <td  class="pointer" onclick="window.location='{% url 'hu_details' hu_detail.from_hu %}';">{{ hu_detail.from_hu }}</td>
+                        {% endif %}
+                        <td>{{ hu_detail.to_location }}</td>
+                        {% if hu_detail.to_hu == "-" %}
+                            <td>{{ hu_detail.to_hu }}</td>
+                        {% else %}
+                            <td  class="pointer" onclick="window.location='{% url 'hu_details' hu_detail.to_hu %}';">{{ hu_detail.to_hu }}</td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>Total:</td>
+                    <td id="total_amount_for_units"></td>
+                    <td>Units</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+{% endblock %}
+
+{% block postloadjs %}
+    {{ block.super }}
+    <!-- Custom Scripts -->
+    <script src="{% static 'js/columnCounterHUview.js' %}"></script>
+
+{% endblock %}

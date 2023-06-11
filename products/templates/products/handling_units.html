@@ -64,7 +64,7 @@
               <tbody>
                 {% for hu in handling_units_with_units %}
                     <tr>
-                        <td>{{ hu.hu }}</td>
+                        <td class="pointer" onclick="window.location='{% url 'hu_details' hu.hu %}';">{{ hu.hu }}</td>
                         <td>{{ hu.manufacturer.display_name }}</td>
                         <td>{{ hu.company.display_name }}</td>
                         <td>{{ hu.location.display_name }}</td>
@@ -118,7 +118,7 @@
             <tbody>
                 {% for hu in handling_units_with_packages %}
                     <tr>
-                        <td>{{ hu.hu }}</td>
+                        <td class="pointer" onclick="window.location='{% url 'hu_details' hu.hu %}';">{{ hu.hu }}</td>
                         <td>{{ hu.manufacturer.display_name }}</td>
                         <td>{{ hu.company.display_name }}</td>
                         <td>{{ hu.location.display_name }}</td>

@@ -28,6 +28,9 @@ from .models import (
 )
 from companies.models import Company
 
+# Custom Imports
+from home.handling_unit_operations import create_HU, create_HU_Movement
+
 
 # Workorders
 @receiver(post_save, sender=WorkOrder)
@@ -64,45 +67,39 @@ def create_new_hu_on_work_order_save(
         else:
             qty_units = "1"
         qty = instance.qty
-        HandlingUnit.objects.create(
-                manufacturer=instance.work_order.company,
-                hu_issued_by=instance.work_order.company,
-                company=instance.work_order.company,
-                location=instance.work_order.warehouse_production,
-                product=instance.product,
-                qty=qty,
-                qty_units=qty_units,
-                batch_nr=instance.work_order.work_order_number,
-                release_date=instance.work_order.date,
-            )
-        hu_made = HandlingUnit.objects.filter(
-            manufacturer=instance.work_order.company,
-            hu_issued_by=instance.work_order.company,
-            company=instance.work_order.company,
-            location=instance.work_order.warehouse_production,
-            product=instance.product,
-            qty=qty,
-            qty_units=qty_units,
-            batch_nr=instance.work_order.work_order_number,
-            release_date=instance.work_order.date,
-            ).last()
-        HandlingUnitMovement.objects.create(
-                hu=hu_made,
-                date=instance.work_order.date,
-                doc_nr=instance.work_order.work_order_number,
-                from_location="Production",
-                to_location=instance.work_order.company.display_name,
-                from_hu="-",
-                to_hu=hu_made.hu,
-                qty=qty,
-            )
+
+        # Creates New HU and returns it
+        hu_made = create_HU(
+            instance.work_order.company,
+            instance.work_order.company,
+            instance.work_order.company,
+            instance.work_order.warehouse_production,
+            instance.product,
+            qty,
+            qty_units,
+            instance.work_order.work_order_number,
+            instance.work_order.date,
+        )
+        # Creates New HU Movement
+        create_HU_Movement(
+            "-",  # Used as dummy variable, needed for function to hadle 'from HU' movements
+            hu_made,
+            "-",  # Used as dummy variable, needed for function to hadle 'to HU' movements
+            instance.work_order.date,
+            instance.work_order.work_order_number,
+            "Production",
+            instance.work_order.company.display_name,
+            "-",
+            hu_made.hu,
+            qty,
+        )
 
 
 @receiver(post_save, sender=WorkOrderItemRawMat)
 def grab_items_from_hu_on_work_order_save(
         sender, instance, created, **kwargs):
     """
-    Update order total on lineitem update/create
+    Takes products from existing HU to fullfill work order
     """
     if created:
         if instance.qty_in == "0":
@@ -224,6 +221,16 @@ def grab_items_from_hu_on_work_order_save(
                         print(f"Created new HU " + hu_made.hu + " from " + hu_with_product.hu)
                         HandlingUnitMovement.objects.create(
                             hu=hu_made,
+                            date=instance.work_order.date,
+                            doc_nr=instance.work_order.work_order_number,
+                            from_location=instance.work_order.company.display_name,
+                            to_location=instance.work_order.company.display_name,
+                            from_hu=hu_with_product.hu,
+                            to_hu=hu_made.hu,
+                            qty=instance.product.units_per_package,
+                        )
+                        HandlingUnitMovement.objects.create(
+                            hu=hu_with_product,
                             date=instance.work_order.date,
                             doc_nr=instance.work_order.work_order_number,
                             from_location=instance.work_order.company.display_name,

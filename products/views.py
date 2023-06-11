@@ -551,3 +551,19 @@ def hu_merge(request):
     }
 
     return render(request, 'products/hu_merge.html', context)
+
+
+# HU Details View
+@login_required
+def hu_details(request, hu):
+    """ A view to return the product detail page """
+
+    hu = get_object_or_404(HandlingUnit, hu=hu)
+    hu_details = HandlingUnitMovement.objects.filter(hu=hu).order_by("date")
+
+    context = {
+        'hu': hu,
+        'hu_details': hu_details,
+    }
+
+    return render(request, 'products/hu_details.html', context)
