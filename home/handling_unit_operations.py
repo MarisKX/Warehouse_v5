@@ -41,7 +41,6 @@ def create_HU(
 def create_HU_Movement(
     old_hu,
     hu_made,
-    new_hu,
     date,
     doc_nr,
     from_location,
@@ -52,7 +51,7 @@ def create_HU_Movement(
 ):
     if old_hu != "-":
         HandlingUnitMovement.objects.create(
-            hu=hu_made,
+            hu=old_hu,
             date=date,
             doc_nr=doc_nr,
             from_location=from_location,
@@ -62,17 +61,6 @@ def create_HU_Movement(
             qty=qty,
         )
     if hu_made != "-":
-        HandlingUnitMovement.objects.create(
-            hu=hu_made,
-            date=date,
-            doc_nr=doc_nr,
-            from_location=from_location,
-            to_location=to_location,
-            from_hu=from_hu,
-            to_hu=to_hu,
-            qty=qty,
-        )
-    if new_hu != "-":
         HandlingUnitMovement.objects.create(
             hu=hu_made,
             date=date,

@@ -13,6 +13,7 @@ from .today_calculation import today_calc
 
 def extras(request):
     if request.user.is_authenticated:
+        #  if 1 > 1:
         all_companies_with_stock = Company.objects.filter(
             warehouse=True).order_by('name')
         valid_settings = get_object_or_404(AppSettings, valid=True)

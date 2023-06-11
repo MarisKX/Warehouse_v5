@@ -84,7 +84,6 @@ def create_new_hu_on_work_order_save(
         create_HU_Movement(
             "-",  # Used as dummy variable, needed for function to hadle 'from HU' movements
             hu_made,
-            "-",  # Used as dummy variable, needed for function to hadle 'to HU' movements
             instance.work_order.date,
             instance.work_order.work_order_number,
             "Production",
@@ -125,15 +124,16 @@ def grab_items_from_hu_on_work_order_save(
                         print("Writing off from existing HU as required qty is less than qty on palet and leaving reminder in palet")
                         hu_with_product.qty = hu_with_product.qty - units_to_use
                         hu_with_product.save()
-                        HandlingUnitMovement.objects.create(
-                            hu=hu_with_product,
-                            date=instance.work_order.date,
-                            doc_nr=instance.work_order.work_order_number,
-                            from_location=instance.work_order.company.display_name,
-                            to_location="Production",
-                            from_hu=hu_with_product.hu,
-                            to_hu="-",
-                            qty=instance.qty,
+                        create_HU_Movement(
+                            hu_with_product,
+                            "-",  # Used as dummy variable, needed for function to hadle 'hu_made' movements
+                            instance.work_order.date,
+                            instance.work_order.work_order_number,
+                            instance.work_order.company.display_name,
+                            "Production",
+                            hu_with_product.hu,
+                            "-",
+                            instance.qty
                         )
                         units_to_use = 0
 
@@ -142,15 +142,16 @@ def grab_items_from_hu_on_work_order_save(
                         hu_with_product.qty = hu_with_product.qty - units_to_use
                         hu_with_product.active = False
                         hu_with_product.save()
-                        HandlingUnitMovement.objects.create(
-                            hu=hu_with_product,
-                            date=instance.work_order.date,
-                            doc_nr=instance.work_order.work_order_number,
-                            from_location=instance.work_order.company.display_name,
-                            to_location="Production",
-                            from_hu=hu_with_product.hu,
-                            to_hu="-",
-                            qty=instance.qty,
+                        create_HU_Movement(
+                            hu_with_product,
+                            "-",  # Used as dummy variable, needed for function to hadle 'hu_made' movements
+                            instance.work_order.date,
+                            instance.work_order.work_order_number,
+                            instance.work_order.company.display_name,
+                            "Production",
+                            hu_with_product.hu,
+                            "-",
+                            instance.qty
                         )
                         units_to_use = 0
 
@@ -162,15 +163,16 @@ def grab_items_from_hu_on_work_order_save(
                         hu_with_product.qty = 0
                         hu_with_product.active = False
                         hu_with_product.save()
-                        HandlingUnitMovement.objects.create(
-                            hu=hu_with_product,
-                            date=instance.work_order.date,
-                            doc_nr=instance.work_order.work_order_number,
-                            from_location=instance.work_order.company.display_name,
-                            to_location="Production",
-                            from_hu=hu_with_product.hu,
-                            to_hu="-",
-                            qty=units_from_current_hu,
+                        create_HU_Movement(
+                            hu_with_product,
+                            "-",  # Used as dummy variable, needed for function to hadle 'hu_made' movements
+                            instance.work_order.date,
+                            instance.work_order.work_order_number,
+                            instance.work_order.company.display_name,
+                            "Production",
+                            hu_with_product.hu,
+                            "-",
+                            instance.qty
                         )
                         units_to_use = leftover
 
@@ -195,49 +197,29 @@ def grab_items_from_hu_on_work_order_save(
                             hu_with_product.qty = hu_with_product.qty - 1
                             hu_with_product.save()
                             print(f"Removing one package and leaving " + str(hu_with_product.qty) + " packages on palet")
-                        HandlingUnit.objects.create(
-                            manufacturer=hu_with_product.manufacturer,
-                            hu_issued_by=instance.work_order.company,
-                            company=instance.work_order.company,
-                            location=instance.work_order.warehouse_production,
-                            product=instance.product,
-                            qty=instance.product.units_per_package,
-                            qty_units="0",
-                            batch_nr=hu_with_product.batch_nr,
-                            release_date=hu_with_product.release_date,
+                        hu_made = create_HU(
+                            hu_with_product.manufacturer,
+                            instance.work_order.company,
+                            instance.work_order.company,
+                            instance.work_order.warehouse_production,
+                            instance.product,
+                            instance.product.units_per_package,
+                            "0",
+                            hu_with_product.batch_nr,
+                            hu_with_product.release_date,
                         )
                         print("Created new HU with one package on it, splited in units to procede")
-                        hu_made = HandlingUnit.objects.filter(
-                            manufacturer=hu_with_product.manufacturer,
-                            hu_issued_by=instance.work_order.company,
-                            company=instance.work_order.company,
-                            location=instance.work_order.warehouse_production,
-                            product=instance.product,
-                            qty=instance.product.units_per_package,
-                            qty_units="0",
-                            batch_nr=hu_with_product.batch_nr,
-                            release_date=hu_with_product.release_date,
-                        ).last()
                         print(f"Created new HU " + hu_made.hu + " from " + hu_with_product.hu)
-                        HandlingUnitMovement.objects.create(
-                            hu=hu_made,
-                            date=instance.work_order.date,
-                            doc_nr=instance.work_order.work_order_number,
-                            from_location=instance.work_order.company.display_name,
-                            to_location=instance.work_order.company.display_name,
-                            from_hu=hu_with_product.hu,
-                            to_hu=hu_made.hu,
-                            qty=instance.product.units_per_package,
-                        )
-                        HandlingUnitMovement.objects.create(
-                            hu=hu_with_product,
-                            date=instance.work_order.date,
-                            doc_nr=instance.work_order.work_order_number,
-                            from_location=instance.work_order.company.display_name,
-                            to_location=instance.work_order.company.display_name,
-                            from_hu=hu_with_product.hu,
-                            to_hu=hu_made.hu,
-                            qty=instance.product.units_per_package,
+                        create_HU_Movement(
+                            hu_with_product,
+                            hu_made,
+                            instance.work_order.date,
+                            instance.work_order.work_order_number,
+                            instance.work_order.company.display_name,
+                            instance.work_order.company.display_name,
+                            hu_with_product.hu,
+                            hu_made.hu,
+                            instance.product.units_per_package,
                         )
 
                     except IndexError:
@@ -358,51 +340,27 @@ def grab_items_from_hu_on_invoice_save(
                     if hu_with_product.qty > instance.qty:
                         hu_with_product.qty = hu_with_product.qty - instance.qty
                         hu_with_product.save()
-
-                        HandlingUnit.objects.create(
-                            manufacturer=hu_with_product.manufacturer,
-                            hu_issued_by=instance.invoice.suplier,
-                            company=instance.invoice.suplier,
-                            location=instance.invoice.suplier_warehouse,
-                            product=instance.product,
-                            qty=instance.qty,
-                            qty_units="0",
-                            batch_nr=hu_with_product.batch_nr,
-                            release_date=hu_with_product.release_date,
+                        hu_made = create_HU(
+                            hu_with_product.manufacturer,
+                            instance.invoice.suplier,
+                            instance.invoice.suplier,
+                            instance.invoice.suplier_warehouse,
+                            instance.product,
+                            instance.qty,
+                            "0",
+                            hu_with_product.batch_nr,
+                            hu_with_product.release_date,
                         )
-
-                        hu_made = HandlingUnit.objects.filter(
-                            manufacturer=hu_with_product.manufacturer,
-                            hu_issued_by=instance.invoice.suplier,
-                            company=instance.invoice.suplier,
-                            location=instance.invoice.suplier_warehouse,
-                            product=instance.product,
-                            qty=instance.qty,
-                            qty_units="0",
-                            batch_nr=hu_with_product.batch_nr,
-                            release_date=hu_with_product.release_date,
-                        ).last()
-
-                        HandlingUnitMovement.objects.create(
-                            hu=hu_with_product,
-                            date=instance.invoice.date,
-                            doc_nr=instance.invoice.invoice_number,
-                            from_location=instance.invoice.suplier.display_name,
-                            to_location=instance.invoice.suplier.display_name,
-                            from_hu=hu_with_product.hu,
-                            to_hu=hu_made,
-                            qty=instance.qty,
-                        )
-
-                        HandlingUnitMovement.objects.create(
-                            hu=hu_made,
-                            date=instance.invoice.date,
-                            doc_nr=instance.invoice.invoice_number,
-                            from_location=instance.invoice.suplier.display_name,
-                            to_location=instance.invoice.suplier.display_name,
-                            from_hu=hu_with_product.hu,
-                            to_hu=hu_made,
-                            qty=instance.qty,
+                        create_HU_Movement(
+                            hu_with_product,
+                            hu_made,
+                            instance.invoice.date,
+                            instance.invoice.invoice_number,
+                            instance.invoice.suplier.display_name,
+                            instance.invoice.suplier.display_name,
+                            hu_with_product.hu,
+                            hu_made.hu,
+                            instance.qty,
                         )
 
                         hu_made.company = instance.invoice.customer
