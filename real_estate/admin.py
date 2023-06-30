@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import RealEstate, RealEstateCoordinates, RealEstateTypes, RealEstateOwnerHistory
+from .models import (
+    RealEstate,
+    RealEstateCoordinates,
+    RealEstateTypes,
+    RealEstateOwnerHistory,
+    MinecraftMap,
+)
 
 # Register your models here.
 
@@ -66,5 +72,13 @@ class RealEstateAdmin(admin.ModelAdmin):
     ordering = ('owner_com', 'owner_pp')
 
 
+class MinecraftMapAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+        'description',
+        'file',
+    )
+
 admin.site.register(RealEstate, RealEstateAdmin)
 admin.site.register(RealEstateTypes, RealEstateTypesAdmin)
+admin.site.register(MinecraftMap, MinecraftMapAdmin)
