@@ -63,8 +63,8 @@ class Company(models.Model):
     def __str__(self):
         return self.name
 
-    def get_full_name(self):
-        return self.full_name
+    def get_display_name(self):
+        return self.display_name
 
     def get_house_number(self):
         return self.street_adress_1

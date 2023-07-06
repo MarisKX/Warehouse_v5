@@ -249,7 +249,7 @@ class Report(models.Model):
                                         btw_from_constr_in_invoices)))))
 
                     # Creates BTW tax report
-                    if total_btw_taxes_to_pay is 0:
+                    if total_btw_taxes_to_pay == 0:
                         TaxReport.objects.create(
                             company=company,
                             tax_date=self.date,

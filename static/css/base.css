@@ -200,3 +200,34 @@ legend {
 .hu-input-field {
     width: 80%;
 }
+
+.form-row {
+    display: flex;
+    align-items: center;
+  }
+
+  input {
+    width: 80%;
+    margin-right: 20px;
+  }
+
+  select {
+    width: 80%;
+    margin-right: 20px;
+  }
+
+  .product-form-field {
+    width: 14.28%;
+  }
+
+  .product-table {
+    width: 80%;
+  }
+
+  .not-allowed {
+    cursor: not-allowed;
+  }
+
+  .calculatedTotal, .calculatedBTW, .calculatedTotalWithBTW {
+    float: right;
+  }

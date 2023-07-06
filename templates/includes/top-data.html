@@ -1,6 +1,6 @@
 <div class="row fs-6">
     <div class="col-3 my-2 fs-4">
-        <p>Today: {{ today }}</p>
+        <p>Today: <span id="todayTop">{{ today }}</span></p>
     </div>
     {% if today < valid_settings.valid_till %}
         <div class="col-2 my-2">

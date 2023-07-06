@@ -24,6 +24,9 @@ class Warehouse(models.Model):
     def __str__(self):
         return self.name
 
+    def get_display_name(self):
+        return self.display_name
+
     def save(self, *args, **kwargs):
         """
         Override the original save method to set the warehouse name and codes

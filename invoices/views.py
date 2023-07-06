@@ -3,7 +3,8 @@ from django.shortcuts import render, get_object_or_404, reverse
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
-from django.http import JsonResponse, HttpResponseRedirect
+from django.http import JsonResponse, HttpResponseRedirect, HttpResponse
+from django.forms import inlineformset_factory
 
 # Time imports
 from datetime import *
@@ -16,9 +17,12 @@ from dateutil.relativedelta import *
 from .models import Invoice, InvoiceItem, RetailSale, RetailSaleItem
 from companies.models import Company
 from bank.models import BankAccountEntry, BankAccount
-from products.models import Product
+from products.models import Product, HandlingUnit
 from citizens.models import Citizen
 from warehouses.models import Warehouse
+
+# Forms import
+from .forms import InvoiceForm, InvoiceItemFormSet
 
 # Custom functions import
 from home.today_calculation import today_calc
@@ -106,14 +110,113 @@ def invoice_details(request, invoice_number):
 # Add New Invoice
 @login_required
 def add_invoice(request):
+    form = InvoiceForm()
+    formset = InvoiceItemFormSet()
 
     def is_ajax(request):
         return request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest'
 
-    all_companies = Company.objects.all()
-
     if is_ajax(request):
-        print(request)
+        id_suplier = request.GET.get('id_suplier')
+        id_customer = request.GET.get('id_customer')
+        id_warehouse = request.GET.get("id_warehouse")
+        if id_suplier is not None:
+
+            company = get_object_or_404(Company, registration_number=id_suplier)
+            id_suplier_warehouse = Warehouse.objects.filter(
+                company=company,
+                internal_warehouse=False
+                ).order_by("display_name").values_list('id')
+            suplier_warehouse = Warehouse.objects.filter(
+                company=company,
+                internal_warehouse=False
+                ).order_by("display_name").values_list('display_name')
+
+            return JsonResponse({
+                "id_suplier_warehouse": list(id_suplier_warehouse),
+                "suplier_warehouse": list(suplier_warehouse),
+                })
+
+        if id_customer is not None:
+
+            company = get_object_or_404(Company, registration_number=id_customer)
+            id_customer_warehouse = Warehouse.objects.filter(
+                company=company,
+                internal_warehouse=False
+                ).order_by("display_name").values_list('id')
+            customer_warehouse = Warehouse.objects.filter(
+                company=company,
+                internal_warehouse=False
+                ).order_by("display_name").values_list('display_name')
+            return JsonResponse({
+                "id_customer_warehouse": list(id_customer_warehouse),
+                "customer_warehouse": list(customer_warehouse),
+                })
+
+        if id_warehouse is not None:
+
+            warehouse = get_object_or_404(Warehouse, id=id_warehouse)
+            print(warehouse)
+            hu_in_stock = HandlingUnit.objects.filter(location=warehouse)
+            print(hu_in_stock)
+            all_products_names_in_stock = []
+            all_products_display_names_in_stock = []
+            for hu in hu_in_stock:
+                all_products_names_in_stock.append(hu.product.name)
+                all_products_display_names_in_stock.append(
+                    hu.product.display_name
+                )
+            products_names_in_stock = sorted(
+                list(set(all_products_names_in_stock))
+            )
+            products_display_names_in_stock = sorted(
+                list(set(all_products_display_names_in_stock))
+            )
+            product_ids = []
+            for name in products_names_in_stock:
+                try:
+                    product = Product.objects.get(name=name)
+                    product_ids.append(product.id)
+                except Product.DoesNotExist:
+                    # Handle the case when a product with the given name does not exist
+                    product_ids.append(None)
+            print(product_ids)
+            print(products_names_in_stock)
+            print(products_display_names_in_stock)
+
+            return JsonResponse({
+                "product_ids": product_ids,
+                "products_display_names_in_stock": products_display_names_in_stock
+                })
+
+    if request.method == 'POST':
+        form = InvoiceForm(request.POST)
+        if form.is_valid():
+            invoice = form.save()  # Save the invoice form and get the instance
+            print(invoice.invoice_number)
+            formset = InvoiceItemFormSet(request.POST, instance=invoice)
+            if formset.is_valid():
+                for form in formset:
+                    if form.has_changed():
+                        form.save()
+                # Additional processing or redirect here
+                        print("Object saved")
+                return HttpResponse("Invoice created successfully")
+            else:
+                # Formset is not valid
+                for form in formset:
+                    if form.errors:
+                        # Process and display the form errors
+                        for field, error_list in form.errors.items():
+                            for error in error_list:
+                                print(f"Error in {field}: {error}")
+
+    context = {
+        'form': form,
+        'formset': formset
+    }
+
+    return render(request, 'invoices/add_invoice.html', context)
 
 
 # Bulk Retail Sale View
