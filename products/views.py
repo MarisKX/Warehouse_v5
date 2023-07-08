@@ -396,6 +396,11 @@ def hu_merge(request):
 
         if hu1_req and hu2_req is not None:
             print(hu1_req)
+            print(type(hu1_req))
+            hu1_req.replace(" ", "")
+            print(hu1_req)
+            print(hu2_req)
+            hu1_req.replace(" ", "")
             print(hu2_req)
             try:
                 hu_1 = HandlingUnit.objects.get(hu=hu1_req, active=True)

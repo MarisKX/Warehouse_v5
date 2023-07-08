@@ -12,6 +12,7 @@ $(document).ready(function(){
                 $("#error-message").html("No HU was selected")
             } else {
                 var hu1 = $('.hu-input-field').val();
+                console.log(hu1)
                 $("#selected-hu").append('<p id="firstHU">' + hu1 + '</p>');
                 count += 1
                 $('.hu-input-field').val('');
@@ -23,6 +24,7 @@ $(document).ready(function(){
                 $("#error-message").html("No HU was selected")
             } else {
                 var hu2 = $('.hu-input-field').val();
+                console.log(hu2)
                 $("#selected-hu").append('<p id="secondHU">' + hu2 + '</p>');
                 count += 1
                 $('.hu-input-field').val('');
@@ -31,8 +33,8 @@ $(document).ready(function(){
                 $("#error-message").html("")
             }
         } else {
-            let hu1 = $("#firstHU").html()
-            let hu2 = $("#secondHU").html()
+            let hu1 = $("#firstHU").html().trim()
+            let hu2 = $("#secondHU").html().trim()
             console.log(hu1, hu2)
 
             $.ajax({
@@ -54,6 +56,10 @@ $(document).ready(function(){
                     $("#selected-hu").empty();
                 }
             });
+            setTimeout(function() {
+                $("#success-message").empty()
+                count = 0
+            }, 5000);
         }
     });
 });
